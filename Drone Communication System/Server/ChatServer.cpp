@@ -2,15 +2,17 @@
 
 void openChat(Server& server, SOCKET& clientSocket) {
     // Open Chat
-    std::string messageToSend;
+    char messageToSend[MAX_MESSAGE_SIZE];
     std::cout << "\033[2J\033[1;1H";
     std::cout << "Chat opened\n";
     std::cout << "Type 'exit' to close chat\n\n";
-    while ( messageToSend.compare("exit") != 0 ) {
+    std::string exit = "exit";
+    std::cin.getline(messageToSend, MAX_MESSAGE_SIZE);
+    while ( strncmp(messageToSend, exit.c_str(), exit.length()) ) {
+
         recieveChatMessage(server, clientSocket);
-        system("pause");
         std::cout << server.getTowerID() << "|( You )" << ": ";
-        std::cin >> messageToSend;
+        std::cin.getline(messageToSend, MAX_MESSAGE_SIZE);
 
         sendChatMessage(server, clientSocket, messageToSend);
     }
@@ -42,7 +44,9 @@ bool recieveChatMessage(Server& server, SOCKET& clientSocket) {
 bool sendChatMessage(Server& server, SOCKET& clientSocket, std::string message) {
 
     MessagePacket msgPacket;
-    msgPacket.setMessage(message);
+    char messageToSend[MAX_MESSAGE_SIZE] = {};
+    strcpy_s(messageToSend, message.c_str());
+    msgPacket.setMessage(messageToSend);
 
     PacketManager pM(msgPacket.serialize());
     Packet* packet = pM.getPacket();

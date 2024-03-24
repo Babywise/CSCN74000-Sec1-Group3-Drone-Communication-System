@@ -1,11 +1,12 @@
 #pragma once
 #include "Packet.h"
+#define MAX_MESSAGE_SIZE 256
 
 class MessagePacket : public Packet {
 private:
-   
+
     struct Body {
-        std::string message;
+        char message[MAX_MESSAGE_SIZE] = {};
     } Body;
 
 public:
@@ -17,7 +18,6 @@ public:
             Head.Fin = 0,
             Head.Ack = 0,
             Head.pType = PacketType::packetMessage;
-        Body.message.erase();
     };
 
     MessagePacket(char* src) {
@@ -29,8 +29,9 @@ public:
         this->buffer = nullptr;
     }
 
-    void setMessage(string message) {
-        this->Body.message = message;
+    void setMessage(char* message) {
+
+        strcpy_s(this->Body.message, message);
     }
 
     std::string getMessage() {
