@@ -25,18 +25,16 @@ bool recieveChatMessage(Server& server, SOCKET& clientSocket) {
 
     if ( bytesReceived > 0) {
 
-        PacketManager* pM = new PacketManager(RxBuffer);
-        if ( pM->getPacketType() == PacketType::packetMessage ) {
-            MessagePacket* msgPacket = new MessagePacket(RxBuffer);
+        PacketManager pM(RxBuffer);
+        if ( pM.getPacketType() == PacketType::packetMessage ) {
+            MessagePacket* msgPacket= new MessagePacket(RxBuffer);
             std::string message = msgPacket->getMessage();
             std::cout << server.getDroneID() << "|(Client): " << message << "\n";
-            delete msgPacket;
-            //return true;
+            return true;
         }
-        delete pM;
-        //return false;
+        return false;
     } else {
-        //return false;
+        return false;
     }
     return true;
 }

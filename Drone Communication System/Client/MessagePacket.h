@@ -3,10 +3,14 @@
 
 class MessagePacket : public Packet {
 private:
+
     struct Body {
         std::string message;
     } Body;
+
 public:
+
+
 
     MessagePacket() : Packet() {
         Head.Source = 0,
