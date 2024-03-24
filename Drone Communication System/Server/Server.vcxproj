@@ -133,6 +133,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChatServer.h" />
+    <ClInclude Include="ChatWindowCommunication.h" />
+    <ClInclude Include="ChatWindow.h" />
     <ClInclude Include="MessagePacket.h" />
     <ClInclude Include="Packet.h" />
     <ClInclude Include="PacketManager.h" />

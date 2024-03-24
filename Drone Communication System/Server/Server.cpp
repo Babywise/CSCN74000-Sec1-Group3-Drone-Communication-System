@@ -100,6 +100,11 @@ std::string Server::getDroneID()
     return droneID;
 }
 
+void Server::setDroneID(std::string droneID)
+{
+    this->droneID = droneID;
+}
+
 bool Server::receivePacket(Packet& packet, SOCKET& clientSocket)
 {
     char buffer[maxPacketSize];
@@ -131,4 +136,17 @@ int Server::sendPacket(Packet& packet, SOCKET& clientSocket)
     return sendResult;
 }
 
+std::string Server::getCurrMessage()
+{
+    return currMessage;
+}
 
+void Server::setCurrMessage(std::string message)
+{
+	this->currMessage = message;
+}
+
+void Server::clearCurrMessage()
+{
+	this->currMessage.erase();
+}

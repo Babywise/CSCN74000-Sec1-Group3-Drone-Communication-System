@@ -12,6 +12,7 @@
 class Client {
     std::string droneID = {};
     std::string towerID = {};
+    std::string currMessage = {};
     WSADATA wsaData = {};
     SOCKET clientSocket = {};
     sockaddr_in serverAddress = {};
@@ -22,9 +23,11 @@ public:
     int sendPacket(Packet& packet);
     bool closeConnection();
 
-
     SOCKET getClientSocket();
     std::string getDroneID();
     std::string getTowerID();
+    std::string getCurrMessage();
+    void setCurrMessage(std::string message);
+    void clearCurrMessage();
 
 };

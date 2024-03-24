@@ -1,9 +1,7 @@
 #include "Client.h"
 
-Client::Client(std::string droneID)
+Client::Client(std::string droneID) : droneID(droneID), towerID("replace_me Twr ID"), currMessage(), wsaData(), clientSocket(), serverAddress()
 {
-    this->towerID = "replace_me Twr ID";
-    this->droneID = droneID;
     // Initialize Winsock
     if ( WSAStartup(MAKEWORD(2, 2), &wsaData) != 0 ) {
         std::cerr << "WSAStartup failed\n";
@@ -69,4 +67,19 @@ std::string Client::getDroneID()
 std::string Client::getTowerID()
 {
     return towerID;
+}
+
+std::string Client::getCurrMessage()
+{
+    return currMessage;
+}
+
+void Client::setCurrMessage(std::string message)
+{
+	this->currMessage = message;
+}
+
+void Client::clearCurrMessage()
+{
+	this->currMessage.erase();
 }

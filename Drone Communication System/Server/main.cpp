@@ -2,9 +2,10 @@
 
 #include <thread>
 #include <iostream>
-#include "ChatServer.h"
+//#include "ChatServer.h"
+#include "ChatWindow.h"
 
-int clientService(Server& server, SOCKET& clientSocket);
+int clientService(Server& server, Server& chatServer, SOCKET& clientSocket);
 
 #define TOWER_ID "AA001"
 
@@ -14,12 +15,15 @@ int main(void) {
     while ( true ) {
 
         Server server(TOWER_ID, 12345);
+        Server chatServer(TOWER_ID, 10000);
 		server.listenforConnection();
+        chatServer.listenforConnection();
 		std::cout << "Listening for connections...\n";
 
 		std::vector<std::thread> threads;
 
 		server.acceptConnection();
+        chatServer.acceptConnection();
 
         std::string command;
 
@@ -33,10 +37,11 @@ int main(void) {
             int choice = std::stoi(command);
             if ( choice == 2 ) {
                 server.closeLastConnection();
+                chatServer.closeLastConnection();
                 continue;
             } else if ( choice == 1 ) {
                 //threads.push_back(std::thread(clientService, server, server.getClientSockets().back()));
-                threads.push_back(std::thread([&]() { clientService(server, server.getClientSockets().back()); }));
+                threads.push_back(std::thread([&]() { clientService(server, chatServer, server.getClientSockets().back()); }));
                 threads.back().join();
                 std::cout << "Thread created\n";
             }
@@ -48,12 +53,12 @@ int main(void) {
     return 0;
 }
 
-int clientService(Server& server, SOCKET& clientSocket ) {
+int clientService(Server& server, Server& chatServer, SOCKET& clientSocket ) {
     // create a terminal window
 
     //get and set drone id
     //->
-    server.setTowerID(TOWER_ID);
+    server.setDroneID("replace_me_droneID");
     while ( true ) {
         // clear screen
         std::cout << "\033[2J\033[1;1H";
@@ -71,7 +76,8 @@ int clientService(Server& server, SOCKET& clientSocket ) {
 
         switch ( choice ) {
         case 1:
-            openChat(server, clientSocket);
+            //openChat(server, chatServer, clientSocket);
+            runChatWindow(server, clientSocket);
             break;
         default:
             std::cout << "No Option Selected.\n";

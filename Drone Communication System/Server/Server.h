@@ -15,6 +15,7 @@ class Server {
     SOCKET serverSocket = {};
     sockaddr_in serverAddress = {};
     vector<SOCKET> clientSockets = {};
+    std::string currMessage = {};
 
 public:
     Server(std::string towerID, int port);
@@ -27,10 +28,14 @@ public:
     vector<SOCKET>& getClientSockets();
     std::string getTowerID();
     void setTowerID(std::string);
+    void setDroneID(std::string);
     std::string getDroneID();
 
     bool receivePacket(Packet& packet, SOCKET& clientSocket);
     int sendPacket(Packet& packet, SOCKET& clientSocket);
 
+    std::string getCurrMessage();
+    void setCurrMessage(std::string message);
+    void clearCurrMessage();
 
 };

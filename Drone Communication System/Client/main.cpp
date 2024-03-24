@@ -1,18 +1,19 @@
 #include "Packet.h"
 #include "MessagePacket.h"
 #include "Client.h"
-#include "Chat.h"
+#include "ChatWindow.h"
 
 #include <iostream>
 #include <string>
 
 #define DRONE_ID "D001"
 
-void clientService(Client& client);
+void clientService(Client& client, Client& chatClient);
 
 int main(void) {
 	// Create a client object
 	Client client(DRONE_ID);
+	Client chatClient(DRONE_ID);
     std::string command;
 
     while ( true ) {
@@ -28,7 +29,12 @@ int main(void) {
             std::cout << "Waiting...\n";
             if ( client.connectToServer("127.0.0.1", 12345) ) {
                 //Get accepted message here
-                clientService(client);
+                if ( chatClient.connectToServer("127.0.0.1", 10000) ) {
+                    //Get accepted message here
+
+                    clientService(client, chatClient);
+                }
+                //clientService(client);
             }
         } else if ( choice == 2 ) {
 			break;
@@ -40,7 +46,7 @@ int main(void) {
 	return 0;
 }
 
-void clientService(Client& client) {
+void clientService(Client& client, Client& chatClient) {
 
     while ( true ) {
         // clear screen
@@ -59,7 +65,8 @@ void clientService(Client& client) {
 
         switch ( choice ) {
         case 1:
-            openChat(client);
+            runChatWindow(client);
+            //openChat(client, chatClient);
             break;
         case 2:
             std::cout << "Piccc.\n";

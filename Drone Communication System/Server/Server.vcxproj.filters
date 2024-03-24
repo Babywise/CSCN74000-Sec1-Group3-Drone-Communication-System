@@ -41,5 +41,11 @@
     <ClInclude Include="PacketManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ChatWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ChatWindowCommunication.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
