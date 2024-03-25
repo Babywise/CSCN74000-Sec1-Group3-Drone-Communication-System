@@ -6,7 +6,7 @@
 #include "ChatWindow.h"
 #include "menus.h"
 int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket);
-void main_loop(bool &connectionStatus);   
+void main_loop(bool &connectionStatus, bool &listening);   
 #define TOWER_ID "AA001"
 #define RX_PORT 10000
 #define TX_PORT 12345
@@ -17,22 +17,37 @@ void main_loop(bool &connectionStatus);
 
 int main(void) {
     bool connectionStatus = false;
-    std::thread main= std::thread([&]() { main_loop(connectionStatus); });
+    bool listening = false;
+    std::thread main= std::thread([&]() { main_loop(connectionStatus,listening); });
+    while(listening==false){}   // wait to start listening
     while (true) {
       // get input from user
         std::string command;
+        std::cout << "1. Connect" << std::endl;
+        std::cout << "2. Check connections" << std::endl;
+        std::cout << "3. Exit" << std::endl;
+        printToCoordinates(LINE_COUNT + 3, 0, (char*)"Enter : ");
         std::cin >> command;
+        if (command == "1") {
+			// Connect to the client
+		}
+		else
         if (command == "2") {
+            // check connections
 			connectionStatus = false;
             main.join();
 		}
+        else if (command == "3") {
+			// exit
+			break;
+        }
 	}
     
 
     return 0;
 }
 
-void main_loop(bool &connectionStatus) {
+void main_loop(bool &connectionStatus,bool& listening) {
     // Main server loop to accept connections and handle them
     while (true) {
 
@@ -53,7 +68,7 @@ void main_loop(bool &connectionStatus) {
         std::cout << "Listening for connections...\n";
      
         std::vector<std::thread> threads;
-
+        listening = true;
         if (!server.acceptConnection()) {
             std::cout << "Accepting Server Connection Failed.\n";
             break;
