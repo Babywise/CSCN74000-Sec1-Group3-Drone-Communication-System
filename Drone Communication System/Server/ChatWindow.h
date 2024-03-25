@@ -3,7 +3,7 @@
 #include <vector>
 #include <mutex>
 
-#include "ChatWindowCommunication.h"
+#include "../Shared/ChatWindowCommunication.h"
 #include "conio.h"
 #include "Server.h"
 

@@ -32,9 +32,6 @@
     <ClInclude Include="ChatWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ChatWindowCommunication.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ClientListeningServer.h">
       <Filter>Header Files</Filter>
     </ClInclude>

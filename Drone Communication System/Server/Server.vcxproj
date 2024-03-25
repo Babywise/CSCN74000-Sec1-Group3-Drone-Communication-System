@@ -131,7 +131,6 @@
     <ClCompile Include="Server.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ChatWindowCommunication.h" />
     <ClInclude Include="ChatWindow.h" />
     <ClInclude Include="Server.h" />
   </ItemGroup>

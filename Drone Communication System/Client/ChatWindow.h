@@ -1,5 +1,5 @@
 #pragma once
-#include "ChatWindowCommunication.h"
+#include "../Shared/ChatWindowCommunication.h"
 #include "conio.h"
 #include "Client.h"
 
@@ -8,7 +8,11 @@
 #include <mutex>
 
 #define LINE_COUNT 15
-
+#define DEFAULT_DATE "2022-12-3"
+#define BACKSPACE '\b'
+#define ENTER '\r'
+#define CHECK_INTERVAL 100
+#define EXIT_COMMAND "exit\r"
 
 bool sendChatMessage(Client& client, std::string message) {
 	/*
@@ -119,7 +123,7 @@ public:
 
 void UpdateWindow(ChatWindow& window) {
 	while ( !window.isTerminating() || window.HasUpdate() ) {
-		std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		std::this_thread::sleep_for(std::chrono::milliseconds(CHECK_INTERVAL));
 		if ( window.HasUpdate() ) {
 			window.updateWindow();
 		}
@@ -131,7 +135,7 @@ void listener(ChatWindow& window, Client& chatClient) {
 	while ( !window.isTerminating() || window.HasUpdate() ) {
 		// if message received
 		if ( recieveChatMessage(chatClient) ) {
-			window.addChat((char*)"2022-12-3", chatClient.getCurrMessage());
+			window.addChat((char*)DEFAULT_DATE, chatClient.getCurrMessage());
 		}
 		chatClient.clearCurrMessage();
 	}
@@ -150,18 +154,18 @@ int runChatWindow(Client& chatClient) {
 		char user_character = _getch();
 		CHAT.updated();
 		message += user_character;
-		if ( user_character == '\r' ) {
-			if ( message == "exit\r" ) {
+		if ( user_character == ENTER) {
+			if ( message == EXIT_COMMAND) {
 				CHAT.terminate();
 				break;
 			} else {
 				//send message to server
 				sendChatMessage(chatClient, CHAT.message);
 				std::string add_to_chat = CHAT.message;
-				CHAT.addChat((char*)"2022-12-3", message);
+				CHAT.addChat((char*)DEFAULT_DATE, message);
 			}
 			message = "";
-		} else if ( user_character == '\b' ) {
+		} else if ( user_character == BACKSPACE) {
 			if ( message.size() > 1 ) {
 				message.pop_back();
 				message.pop_back();
@@ -169,7 +173,7 @@ int runChatWindow(Client& chatClient) {
 		}
 		CHAT.message = message;
 	}
-	CHAT.addChat((char*)"2022-12-3", (char*)"Goodbye!");
+	CHAT.addChat((char*)DEFAULT_DATE, (char*)"Goodbye!");
 	t1.join();
 	t2.join();
 	return 0;
