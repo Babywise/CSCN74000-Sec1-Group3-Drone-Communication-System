@@ -38,9 +38,9 @@ bool Server::listenforConnection()
         std::cerr << "Listen failed: " << WSAGetLastError() << '\n';
         closesocket(serverSocket);
         WSACleanup();
-        return 1;
+        return false;
     } else {
-        return 0;
+        return true;
     }
 }
 
@@ -52,16 +52,19 @@ bool Server::acceptConnection()
         std::cerr << "Accept failed: " << WSAGetLastError() << '\n';
         closesocket(serverSocket);
         WSACleanup();
-        return 1;
+        return false;
     } else {
-		return 0;
+		return true;
 	}
 }
 
 bool Server::closeLastConnection()
 {
-    closesocket(clientSockets.back());
-    return true;
+    if ( closesocket(clientSockets.back()) != SOCKET_ERROR ) {
+        return true;
+    } else {
+        return false;
+    }
 }
 
 bool Server::shutdownServer()
@@ -103,30 +106,6 @@ std::string Server::getDroneID()
 void Server::setDroneID(std::string droneID)
 {
     this->droneID = droneID;
-}
-
-bool Server::receivePacket(Packet& packet, SOCKET& clientSocket)
-{
-    char buffer[maxPacketSize];
-    int bytesReceived = recv(clientSocket, buffer, maxPacketSize, 0);
-
-    if ( bytesReceived > 0 ) {
-        PacketManager packetManager(buffer);
-        MessagePacket* msgPacket;
-
-        switch ( packetManager.getPacketType() )
-        {
-        case PacketType::packetMessage:
-            msgPacket = new MessagePacket(buffer);
-            std::cout << msgPacket->getMessage() << '\n';
-            return true;
-            break;
-        default:
-            std::cout << "Invalid Packet Type.\n";
-            break;
-        }
-    }
-    return false;
 }
 
 int Server::sendPacket(Packet& packet, SOCKET& clientSocket)

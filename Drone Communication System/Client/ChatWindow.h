@@ -38,7 +38,6 @@ bool recieveChatMessage(Client& client) {
 		if ( pM.getPacketType() == PacketType::packetMessage ) {
 			MessagePacket* msgPacket = new MessagePacket(RxBuffer);
 			client.setCurrMessage(msgPacket->getMessage());
-			//std::cout << client.getTowerID() << "|(Server): " << message << "\n";
 			return true;
 		}
 		return false;

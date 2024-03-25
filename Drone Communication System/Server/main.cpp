@@ -5,7 +5,7 @@
 //#include "ChatServer.h"
 #include "ChatWindow.h"
 
-int clientService(Server& server, Server& chatServer, SOCKET& clientSocket);
+int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket);
 
 #define TOWER_ID "AA001"
 
@@ -16,14 +16,27 @@ int main(void) {
 
         Server server(TOWER_ID, 12345);
         Server chatServer(TOWER_ID, 10000);
-		server.listenforConnection();
-        chatServer.listenforConnection();
+        if ( !server.listenforConnection() ) {
+            std::cout << "Server Listening Failed.\n";
+            break;
+        }
+        if ( !chatServer.listenforConnection() ) {
+            std::cout << "Chat Server Listening Failed.\n";
+            break;
+        }
+
 		std::cout << "Listening for connections...\n";
 
 		std::vector<std::thread> threads;
 
-		server.acceptConnection();
-        chatServer.acceptConnection();
+        if ( !server.acceptConnection() ) {
+            std::cout << "Accepting Server Connection Failed.\n";
+            break;
+        }
+        if ( !chatServer.acceptConnection() ) {
+            std::cout << "Accepting Chat Server Connection Failed.\n";
+            break;
+        }
 
         std::string command;
 
@@ -36,12 +49,17 @@ int main(void) {
             std::cin >> command;
             int choice = std::stoi(command);
             if ( choice == 2 ) {
-                server.closeLastConnection();
-                chatServer.closeLastConnection();
+                if ( !server.closeLastConnection() ) {
+                    std::cout << "Closing Server Connection Failed.\n";
+                    break;
+                }
+                if ( !chatServer.closeLastConnection() ) {
+                    std::cout << "Closing Chat Server Connection Failed.\n";
+                    break;
+                }
                 continue;
             } else if ( choice == 1 ) {
-                //threads.push_back(std::thread(clientService, server, server.getClientSockets().back()));
-                threads.push_back(std::thread([&]() { clientService(server, chatServer, server.getClientSockets().back()); }));
+                threads.push_back(std::thread([&]() { clientService(server, server.getClientSockets().back(), chatServer, chatServer.getClientSockets().back()); }));
                 threads.back().join();
                 std::cout << "Thread created\n";
             }
@@ -53,7 +71,7 @@ int main(void) {
     return 0;
 }
 
-int clientService(Server& server, Server& chatServer, SOCKET& clientSocket ) {
+int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket) {
     // create a terminal window
 
     //get and set drone id
@@ -76,8 +94,7 @@ int clientService(Server& server, Server& chatServer, SOCKET& clientSocket ) {
 
         switch ( choice ) {
         case 1:
-            //openChat(server, chatServer, clientSocket);
-            runChatWindow(server, clientSocket);
+            runChatWindow(chatServer, clientChatSocket);
             break;
         default:
             std::cout << "No Option Selected.\n";

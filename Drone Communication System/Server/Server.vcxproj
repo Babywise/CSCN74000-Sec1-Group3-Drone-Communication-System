@@ -127,12 +127,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ChatServer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Server.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="ChatServer.h" />
     <ClInclude Include="ChatWindowCommunication.h" />
     <ClInclude Include="ChatWindow.h" />
     <ClInclude Include="MessagePacket.h" />

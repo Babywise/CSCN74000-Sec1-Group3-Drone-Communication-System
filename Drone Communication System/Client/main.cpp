@@ -27,17 +27,22 @@ int main(void) {
         if ( choice == 1 ) {
             // Connect to the server
             std::cout << "Waiting...\n";
-            if ( client.connectToServer("127.0.0.1", 12345) ) {
-                //Get accepted message here
-                if ( chatClient.connectToServer("127.0.0.1", 10000) ) {
-                    //Get accepted message here
-
-                    clientService(client, chatClient);
-                }
-                //clientService(client);
+            if ( !client.connectToServer("127.0.0.1", 12345) ) {
+                std::cout << "Server Connection Failed.\n";
+                break;
             }
+
+            if ( !chatClient.connectToServer("127.0.0.1", 10000) ) {
+                std::cout << "Chat Server Connection Failed.\n";
+                break;
+            }
+
+            clientService(client, chatClient);
+
         } else if ( choice == 2 ) {
 			break;
+        } else {
+			std::cout << "Invalid Option.\n";
 		}
     }
 
@@ -65,8 +70,7 @@ void clientService(Client& client, Client& chatClient) {
 
         switch ( choice ) {
         case 1:
-            runChatWindow(client);
-            //openChat(client, chatClient);
+            runChatWindow(chatClient);
             break;
         case 2:
             std::cout << "Piccc.\n";

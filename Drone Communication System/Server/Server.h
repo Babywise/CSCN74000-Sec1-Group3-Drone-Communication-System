@@ -31,7 +31,6 @@ public:
     void setDroneID(std::string);
     std::string getDroneID();
 
-    bool receivePacket(Packet& packet, SOCKET& clientSocket);
     int sendPacket(Packet& packet, SOCKET& clientSocket);
 
     std::string getCurrMessage();
