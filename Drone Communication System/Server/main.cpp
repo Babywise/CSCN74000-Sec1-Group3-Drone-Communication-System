@@ -60,7 +60,11 @@ int main(void) {
 
                 if ( connectionPending == true ) {
                     connectionPending = false;
+                    //use sockets below 
+                    // checkConnectionsFromClient(threads, server, chatServer);
                     main.join();
+                    //Potentially needed
+                    //main = std::thread([&]() { mainLoop(connectionPending, listening); });
                 }
 
             } else {
@@ -112,6 +116,7 @@ void mainLoop(bool& connectionPending, bool& listening) {
             printToCoordinates(6, 0, (char*)"Connection incoming... (10)");
         }
 
+        //Potentially move this to main
         checkConnectionsFromClient(threads, server, chatServer);
 
         server.shutdownServer();
