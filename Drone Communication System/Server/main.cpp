@@ -5,6 +5,7 @@
 
 #include <thread>
 #include <iostream>
+#include <fstream>
 
 int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket);
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer);
@@ -124,6 +125,47 @@ void mainLoop(bool& connectionPending, bool& listening) {
     }
 }
 
+bool receiveImage(Server& chatServer, SOCKET& clientChatSocket) {
+    while (true) {
+        int imageSize;
+        int recvResult = recv(clientChatSocket, reinterpret_cast<char*>(&imageSize), sizeof(imageSize), 0);
+        if (recvResult <= 0 || imageSize == -1) {
+            std::cout << "No more images to receive or connection closed by client.\n";
+            break;
+        }
+
+        std::string filename = "./Images/received_image_" + std::to_string(time(nullptr)) + ".jpg";
+        std::ofstream outFile(filename, std::ios::binary);
+        if (!outFile) {
+            std::cerr << "Failed to create file\n";
+            break;
+        }
+
+        char buffer[1024];
+        int totalBytesReceived = 0;
+        while (totalBytesReceived < imageSize) {
+            int bytesRead = recv(clientChatSocket, buffer, sizeof(buffer), 0);
+            if (bytesRead == SOCKET_ERROR) {
+                std::cerr << "Error receiving data: " << WSAGetLastError() << '\n';
+                outFile.close();
+                break;
+            }
+            outFile.write(buffer, bytesRead);
+            totalBytesReceived += bytesRead;
+        }
+
+        std::cout << "Image received: " << filename << "\n";
+        outFile.close();
+
+        // Send acknowledgment back to client
+        std::string ackMessage = "Image received successfully";
+        send(clientChatSocket, ackMessage.c_str(), ackMessage.length(), 0);
+    }
+    system("pause");
+    return true;
+}
+
+
 int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket) {
 
     //get and set drone id
@@ -142,6 +184,8 @@ int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCK
         case 1:
             runChatWindow(chatServer, clientChatSocket);
             break;
+        case 2:
+            receiveImage(chatServer, clientChatSocket);
         default:
             std::cout << "No Option Selected.\n";
             break;

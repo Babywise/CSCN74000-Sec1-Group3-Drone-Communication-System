@@ -7,6 +7,8 @@
 
 #include <iostream>
 #include <string>
+#include <fstream>
+#include <queue>
 
 #define DRONE_ID "D001"
 #define CLIENT_PORT 12345
@@ -73,6 +75,74 @@ void mainLoop() {
 
 }
 
+
+bool sendImage(Client& chatClient) {
+
+    
+    std::queue<std::string> imageQueue;
+    std::string filename;
+    while (true) {
+        std::cout << "Enter the name of the image file to send (or 'done' to finish): ";
+        std::cin >> filename;
+        if (filename == "done") {
+            break;
+        }
+        imageQueue.push(filename);
+    }
+
+    while (!imageQueue.empty()) {
+        std::string filename = imageQueue.front();
+        imageQueue.pop();
+        std::string filepath = "./images/" + filename;
+        std::ifstream file(filepath, std::ios::binary);
+        if (!file) {
+            std::cerr << "Failed to open image file\n";
+            continue;
+        }
+
+        std::string imageData((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+        int imageSize = imageData.size();
+        std::cout << "Sending image size: " << imageSize << " bytes\n";
+        send(chatClient.getClientSocket(), reinterpret_cast<const char*>(&imageSize), sizeof(imageSize), 0);
+
+        int totalBytesSent = 0;
+        int packetSize = 1024;
+        while (totalBytesSent < imageSize) {
+            int bytesToSend = std::min<int>(packetSize, imageSize - totalBytesSent);
+            int bytesSent = send(chatClient.getClientSocket(), imageData.data() + totalBytesSent, bytesToSend, 0);
+            if (bytesSent == SOCKET_ERROR) {
+                std::cerr << "Error sending data: " << WSAGetLastError() << '\n';
+                file.close();
+                break;
+            }
+            totalBytesSent += bytesSent;
+            std::cout << "Sent " << bytesSent << " bytes (Total: " << totalBytesSent << "/" << imageSize << ")\n";
+        }
+
+        std::cout << "Image sent successfully\n";
+        file.close();
+
+        // Wait for acknowledgment
+        char ack[256];
+        int bytesReceived = recv(chatClient.getClientSocket(), ack, sizeof(ack), 0);
+        if (bytesReceived > 0) {
+            ack[bytesReceived] = '\0';
+            std::cout << "Server acknowledgment: " << ack << '\n';
+        }
+
+        Sleep(1000); // Pause before sending the next image
+    }
+
+    // Signal end of transmission
+    int endSignal = -1; // Use -1 to indicate the end of image transmission
+    send(chatClient.getClientSocket(), reinterpret_cast<const char*>(&endSignal), sizeof(endSignal), 0);
+
+    system("pause");
+    return true;
+    
+}
+
+
 void clientService(Client& client, Client& chatClient) {
 
     while ( true ) {
@@ -83,6 +153,8 @@ void clientService(Client& client, Client& chatClient) {
         std::cin >> command;
         int choice = std::stoi(command);
 
+        bool imageStatus = false;
+
 
         switch ( choice ) {
         case 1:
@@ -90,6 +162,8 @@ void clientService(Client& client, Client& chatClient) {
             break;
         case 2:
             std::cout << "Piccc.\n";
+            imageStatus = sendImage(chatClient);
+            std::cout << "ImageStatus: " << imageStatus << std::endl;
             break;
         default:
             std::cout << "No Option Selected.\n";
