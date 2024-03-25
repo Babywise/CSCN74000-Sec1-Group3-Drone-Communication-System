@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-
+#define HEADER_BYTE_SIZE 16
 using namespace std;
 
 enum class PacketType {
@@ -10,17 +10,17 @@ enum class PacketType {
 };
 
 const unsigned int maxPacketSize = 1024;
-const unsigned int emptyPacketSize = 16;
+const unsigned int emptyPacketSize = HEADER_BYTE_SIZE;
 
 class Packet {
 protected:
 	struct Header {
-		unsigned Source : 16;			//2 Bytes -> max = 65,535
-		unsigned Destination : 16;		//2 Bytes -> max = 65,535
+		unsigned Source : HEADER_BYTE_SIZE;			//2 Bytes -> max = 65,535
+		unsigned Destination : HEADER_BYTE_SIZE;		//2 Bytes -> max = 65,535
 		PacketType pType;				//4 Bytes -> max = 2,147,483,647
 		unsigned int Bytes;				//4 Bytes -> max = 4,294,967,295
-		unsigned Fin : 16;				//2 byte  -> max = 255
-		unsigned Ack : 16;				//2 byte  -> max = 255
+		unsigned Fin : HEADER_BYTE_SIZE;				//2 byte  -> max = 255
+		unsigned Ack : HEADER_BYTE_SIZE;				//2 byte  -> max = 255
 	} Head;
 
 	char* pSerialBuff;					//4 Bytes

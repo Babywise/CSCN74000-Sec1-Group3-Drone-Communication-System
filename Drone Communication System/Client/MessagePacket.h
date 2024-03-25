@@ -1,5 +1,5 @@
 #pragma once
-#include "Packet.h"
+#include "../Shared/Packet.h"
 #define MAX_MESSAGE_SIZE 256
 
 class MessagePacket : public Packet {

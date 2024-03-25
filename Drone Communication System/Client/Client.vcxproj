@@ -136,7 +136,6 @@
     <ClInclude Include="ChatWindowCommunication.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="ClientListeningServer.h" />
-    <ClInclude Include="Packet.h" />
     <ClInclude Include="MessagePacket.h" />
     <ClInclude Include="PacketManager.h" />
   </ItemGroup>

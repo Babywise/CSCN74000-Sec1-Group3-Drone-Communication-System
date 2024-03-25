@@ -9,8 +9,11 @@
 
 #define LINE_COUNT 15
 
-bool sendChatMessage(Client& client, std::string message) {
 
+bool sendChatMessage(Client& client, std::string message) {
+	/*
+	* Send message to server
+	*/
 	MessagePacket msgPacket;
 	char messageToSend[MAX_MESSAGE_SIZE] = {};
 	strcpy_s(messageToSend, message.c_str());
@@ -74,7 +77,7 @@ public:
 	}
 	void updateWindow() {
 		// CLEAR Screen
-		printf("\033[2J\033[1;1H");
+		std::system("cls");
 		lock.lock();
 		// load last LINE_COUNT messages into a vector
 		std::vector<ChatWindowCommunication> lastChats;

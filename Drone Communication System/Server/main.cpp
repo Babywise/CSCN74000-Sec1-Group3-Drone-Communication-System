@@ -4,76 +4,98 @@
 #include <iostream>
 //#include "ChatServer.h"
 #include "ChatWindow.h"
-
+#include "menus.h"
 int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket);
-
+void main_loop(bool &connectionStatus);   
 #define TOWER_ID "AA001"
+#define RX_PORT 10000
+#define TX_PORT 12345
+
+
+
+
 
 int main(void) {
+    bool connectionStatus = false;
+    std::thread main= std::thread([&]() { main_loop(connectionStatus); });
+    while (true) {
+      // get input from user
+        std::string command;
+        std::cin >> command;
+        if (command == "2") {
+			connectionStatus = false;
+            main.join();
+		}
+	}
+    
 
+    return 0;
+}
+
+void main_loop(bool &connectionStatus) {
     // Main server loop to accept connections and handle them
-    while ( true ) {
+    while (true) {
 
         std::system("cls");
 
-        Server server(TOWER_ID, 12345);
-        Server chatServer(TOWER_ID, 10000);
-        if ( !server.listenforConnection() ) {
+        Server server(TOWER_ID, TX_PORT);
+        Server chatServer(TOWER_ID, RX_PORT);
+
+        if (!server.listenforConnection()) {
             std::cout << "Server Listening Failed.\n";
             break;
         }
-        if ( !chatServer.listenforConnection() ) {
+        if (!chatServer.listenforConnection()) {
             std::cout << "Chat Server Listening Failed.\n";
             break;
         }
 
-		std::cout << "Listening for connections...\n";
+        std::cout << "Listening for connections...\n";
+     
+        std::vector<std::thread> threads;
 
-		std::vector<std::thread> threads;
-
-        if ( !server.acceptConnection() ) {
+        if (!server.acceptConnection()) {
             std::cout << "Accepting Server Connection Failed.\n";
             break;
         }
-        if ( !chatServer.acceptConnection() ) {
+        if (!chatServer.acceptConnection()) {
             std::cout << "Accepting Chat Server Connection Failed.\n";
             break;
         }
 
+        connectionStatus = true;
+
+        while (connectionStatus != false) {
+            printToCoordinates(LINE_COUNT + 3, 0, (char*)"Connection incoming");
+        }
         std::string command;
 
-        while ( command != "1" && command != "2" ) {
-            std::system("cls");
-            std::cout << "Client connected\n";
-            std::cout << "1. Accept\n";
-            std::cout << "2. Reject\n";
-
+        while (command != "1" && command != "2") {
+            accept_reject_menu();
             std::cin >> command;
             int choice = std::stoi(command);
-            if ( choice == 2 ) {
-                if ( !server.closeLastConnection() ) {
+            if (choice == 2) {
+                if (!server.closeLastConnection()) {
                     std::cout << "Closing Server Connection Failed.\n";
                     break;
                 }
-                if ( !chatServer.closeLastConnection() ) {
+                if (!chatServer.closeLastConnection()) {
                     std::cout << "Closing Chat Server Connection Failed.\n";
                     break;
                 }
-                continue;
-            } else if ( choice == 1 ) {
+                return;
+            }
+            else if (choice == 1) {
                 threads.push_back(std::thread([&]() { clientService(server, server.getClientSockets().back(), chatServer, chatServer.getClientSockets().back()); }));
                 threads.back().join();
                 std::cout << "Thread created\n";
             }
         }
 
-		server.shutdownServer();
-		chatServer.shutdownServer();
+        server.shutdownServer();
+        chatServer.shutdownServer();
     }
-
-    return 0;
 }
-
 int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket) {
     // create a terminal window
 
@@ -82,14 +104,7 @@ int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCK
     server.setDroneID("replace_me_droneID");
     while ( true ) {
         // clear screen
-        std::system("cls");
-        std::cout << "Tower ID: " << server.getTowerID() << "\n";
-        std::cout << "Connected: " << server.getDroneID() << "\n";
-        std::cout << "Waiting for command...\n";
-        std::cout << "1. Open Chat\n";
-        std::cout << "2. Take Picture\n";
-        std::cout << "3. Disconnect\n";
-
+        server_main_menu(server.getTowerID(), server.getDroneID());
         std::string command;
         std::cin >> command;
 

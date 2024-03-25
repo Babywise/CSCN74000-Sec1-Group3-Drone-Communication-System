@@ -1,5 +1,5 @@
 #pragma once
-#include "Packet.h"
+#include "../Shared/Packet.h"
 #include "MessagePacket.h"
 
 class PacketManager {

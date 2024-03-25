@@ -1,13 +1,17 @@
-#include "Packet.h"
+#include "../Shared/Packet.h"
 #include "MessagePacket.h"
 #include "Client.h"
 #include "ChatWindow.h"
 #include "ClientListeningServer.h"
-
+#include "../server/menus.h"
 #include <iostream>
 #include <string>
 
 #define DRONE_ID "D001"
+#define SERVER_IP "127.0.0.1"
+#define SERVER_PORT 12345
+#define CHAT_SERVER_PORT 10000
+
 
 void clientService(Client& client, Client& chatClient);
 
@@ -26,24 +30,19 @@ int main(void) {
     std::string command;
 
     while ( true ) {
-        std::system("cls");
-        std::cout << "Listening for connections...\n";
-        std::cout << "Welcome to Next Level Drone Systems\n";
-        std::cout << "1. Connect\n";
-        std::cout << "2. Check Connections\n";
-        std::cout << "3. Exit\n";
+        drone_connect_menu();
 
         std::cin >> command;
         int choice = std::stoi(command);
         if ( choice == 1 ) {
             // Connect to the server
             std::cout << "Waiting...\n";
-            if ( !client.connectToServer("127.0.0.1", 12345) ) {
+            if ( !client.connectToServer(SERVER_IP, SERVER_PORT) ) {
                 std::cout << "Server Connection Failed.\n";
                 break;
             }
 
-            if ( !chatClient.connectToServer("127.0.0.1", 10000) ) {
+            if ( !chatClient.connectToServer(SERVER_IP, CHAT_SERVER_PORT) ) {
                 std::cout << "Chat Server Connection Failed.\n";
                 break;
             }
@@ -66,13 +65,7 @@ void clientService(Client& client, Client& chatClient) {
 
     while ( true ) {
         // clear screen
-        std::system("cls");
-        std::cout << "Drone ID: " << client.getDroneID() << "\n";
-        std::cout << "Connected: " << client.getTowerID() << "\n";
-        std::cout << "Waiting for command...\n";
-        std::cout << "1. Open Chat\n";
-        std::cout << "2. Take & Send Picture\n";
-        std::cout << "3. Disconnect\n";
+        drone_main_menu(client.getDroneID(), client.getTowerID());
 
         std::string command;
         std::cin >> command;
