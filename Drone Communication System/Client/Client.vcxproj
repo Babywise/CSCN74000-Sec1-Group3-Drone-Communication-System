@@ -127,7 +127,20 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Client.cpp" />
+    <ClCompile Include="ClientListeningServer.cpp" />
     <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="ChatWindow.h" />
+    <ClInclude Include="Client.h" />
+    <ClInclude Include="ClientListeningServer.h" />
+    <ClInclude Include="ClientMenus.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DCS Class Library\DCS Class Library.vcxproj">
+      <Project>{f101cee8-2cd4-42c4-a26b-bb1c04fcf477}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

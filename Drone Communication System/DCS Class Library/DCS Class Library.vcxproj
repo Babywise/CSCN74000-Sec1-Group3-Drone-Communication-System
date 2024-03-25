@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{4baa319c-5741-40dd-8856-5043e7205fb1}</ProjectGuid>
-    <RootNamespace>Server</RootNamespace>
+    <ProjectGuid>{f101cee8-2cd4-42c4-a26b-bb1c04fcf477}</ProjectGuid>
+    <RootNamespace>DCSClassLibrary</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -127,20 +127,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Server.cpp" />
-    <ClCompile Include="ServerRequester.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="ChatWindow.h" />
-    <ClInclude Include="Server.h" />
-    <ClInclude Include="ServerMenus.h" />
-    <ClInclude Include="ServerRequester.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DCS Class Library\DCS Class Library.vcxproj">
-      <Project>{f101cee8-2cd4-42c4-a26b-bb1c04fcf477}</Project>
-    </ProjectReference>
+    <ClInclude Include="ChatWindowCommunication.h" />
+    <ClInclude Include="MessagePacket.h" />
+    <ClInclude Include="Packet.h" />
+    <ClInclude Include="PacketManager.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
