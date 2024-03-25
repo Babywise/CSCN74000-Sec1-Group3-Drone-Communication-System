@@ -26,7 +26,7 @@ int main(void) {
     std::string command;
 
     while ( true ) {
-        std::cout << "\033[2J\033[1;1H";
+        std::system("cls");
         std::cout << "Listening for connections...\n";
         std::cout << "Welcome to Next Level Drone Systems\n";
         std::cout << "1. Connect\n";
@@ -66,7 +66,7 @@ void clientService(Client& client, Client& chatClient) {
 
     while ( true ) {
         // clear screen
-        std::cout << "\033[2J\033[1;1H";
+        std::system("cls");
         std::cout << "Drone ID: " << client.getDroneID() << "\n";
         std::cout << "Connected: " << client.getTowerID() << "\n";
         std::cout << "Waiting for command...\n";

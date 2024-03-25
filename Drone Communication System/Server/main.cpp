@@ -14,7 +14,7 @@ int main(void) {
     // Main server loop to accept connections and handle them
     while ( true ) {
 
-        std::cout << "\033[2J\033[1;1H";
+        std::system("cls");
 
         Server server(TOWER_ID, 12345);
         Server chatServer(TOWER_ID, 10000);
@@ -43,7 +43,7 @@ int main(void) {
         std::string command;
 
         while ( command != "1" && command != "2" ) {
-            std::cout << "\033[2J\033[1;1H";
+            std::system("cls");
             std::cout << "Client connected\n";
             std::cout << "1. Accept\n";
             std::cout << "2. Reject\n";
@@ -82,7 +82,7 @@ int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCK
     server.setDroneID("replace_me_droneID");
     while ( true ) {
         // clear screen
-        std::cout << "\033[2J\033[1;1H";
+        std::system("cls");
         std::cout << "Tower ID: " << server.getTowerID() << "\n";
         std::cout << "Connected: " << server.getDroneID() << "\n";
         std::cout << "Waiting for command...\n";
