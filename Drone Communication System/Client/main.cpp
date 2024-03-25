@@ -2,6 +2,7 @@
 #include "MessagePacket.h"
 #include "Client.h"
 #include "ChatWindow.h"
+#include "ClientListeningServer.h"
 
 #include <iostream>
 #include <string>
@@ -14,13 +15,23 @@ int main(void) {
 	// Create a client object
 	Client client(DRONE_ID);
 	Client chatClient(DRONE_ID);
+    /*Server server(DRONE_ID, 12345);
+
+    if ( !server.listenforConnection() ) {
+        std::cout << "Server Listening Failed.\n";
+        break;
+    }*/
+
+
     std::string command;
 
     while ( true ) {
         std::cout << "\033[2J\033[1;1H";
+        std::cout << "Listening for connections...\n";
         std::cout << "Welcome to Next Level Drone Systems\n";
         std::cout << "1. Connect\n";
-        std::cout << "2. Exit\n";
+        std::cout << "2. Check Connections\n";
+        std::cout << "3. Exit\n";
 
         std::cin >> command;
         int choice = std::stoi(command);
@@ -60,7 +71,7 @@ void clientService(Client& client, Client& chatClient) {
         std::cout << "Connected: " << client.getTowerID() << "\n";
         std::cout << "Waiting for command...\n";
         std::cout << "1. Open Chat\n";
-        std::cout << "2. Take Picture\n";
+        std::cout << "2. Take & Send Picture\n";
         std::cout << "3. Disconnect\n";
 
         std::string command;

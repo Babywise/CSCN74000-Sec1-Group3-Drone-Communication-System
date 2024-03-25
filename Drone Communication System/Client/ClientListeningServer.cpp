@@ -1,4 +1,4 @@
-#include "Server.h"
+#include "ClientListeningServer.h"
 
 Server::Server(std::string towerID, int port)
 {
@@ -54,8 +54,8 @@ bool Server::acceptConnection()
         WSACleanup();
         return false;
     } else {
-		return true;
-	}
+        return true;
+    }
 }
 
 bool Server::closeLastConnection()
@@ -63,7 +63,6 @@ bool Server::closeLastConnection()
     if ( closesocket(clientSockets.back()) != SOCKET_ERROR ) {
         return true;
     } else {
-        std::cout << "Thread:" << WSAGetLastError() << '\n';
         return false;
     }
 }
@@ -75,9 +74,8 @@ bool Server::shutdownServer()
         WSACleanup();
         return true;
     } else {
-        std::cout << WSAGetLastError() << '\n';
-		return false;
-	}
+        return false;
+    }
 }
 
 SOCKET Server::getServerSocket()
@@ -124,10 +122,10 @@ std::string Server::getCurrMessage()
 
 void Server::setCurrMessage(std::string message)
 {
-	this->currMessage = message;
+    this->currMessage = message;
 }
 
 void Server::clearCurrMessage()
 {
-	this->currMessage.erase();
+    this->currMessage.erase();
 }

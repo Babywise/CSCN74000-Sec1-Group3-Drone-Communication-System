@@ -14,6 +14,8 @@ int main(void) {
     // Main server loop to accept connections and handle them
     while ( true ) {
 
+        std::cout << "\033[2J\033[1;1H";
+
         Server server(TOWER_ID, 12345);
         Server chatServer(TOWER_ID, 10000);
         if ( !server.listenforConnection() ) {
@@ -66,6 +68,7 @@ int main(void) {
         }
 
 		server.shutdownServer();
+		chatServer.shutdownServer();
     }
 
     return 0;
