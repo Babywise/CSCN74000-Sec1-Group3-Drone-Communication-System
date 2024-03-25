@@ -34,5 +34,40 @@ namespace Librarytests
 			cwc.setMessage("Hello world\n test");
 			Assert::AreEqual(cwc.getMessage(), std::string("Hello world\n test"));
 		}
+        TEST_METHOD(set_reciever_id)
+        {
+            ChatWindowCommunication cwc;
+            cwc.setReceiverID(0010);
+            Assert::AreEqual(cwc.getReceiverID(), 0010);
+        }
+        TEST_METHOD(set_sender_id)
+        {
+            ChatWindowCommunication cwc;
+            cwc.setSenderID(0010);
+            Assert::AreEqual(cwc.getSenderID(), 0010);
+        }
+        TEST_METHOD(inited_sender_id)
+        {
+            ChatWindowCommunication cwc;
+            Assert::AreEqual(cwc.getSenderID(), 0);
+        }
+        TEST_METHOD(inited_reciever_id)
+        {
+            ChatWindowCommunication cwc;
+            Assert::AreEqual(cwc.getReceiverID(), 0);
+        }
+
+        TEST_METHOD(inited_message)
+        {
+            ChatWindowCommunication cwc;
+            cwc = ChatWindowCommunication();
+            Assert::AreEqual(cwc.getMessage(), std::string(""));
+        }
+
+        TEST_METHOD(inited_date)
+        {
+            ChatWindowCommunication cwc;
+            Assert::AreEqual(cwc.getMessage(), std::string(""));
+        }
 	};
 }
