@@ -69,6 +69,10 @@ int main(void) {
 	return 0;
 }
 
+void mainLoop() {
+
+}
+
 void clientService(Client& client, Client& chatClient) {
 
     while ( true ) {
@@ -115,6 +119,18 @@ void checkConnectionsFromServer(Client& client, Client& chatClient, Server& serv
                 std::cout << "Accepting Server Connection Failed.\n";
                 break;
             } else {
+                std::cout << "Server Connection (SUCCESS).\n";
+                std::string message = DRONE_ID + string("| Accepted Your Connection");
+                MessagePacket msgPacket;
+                char messageToSend[MAX_MESSAGE_SIZE] = {};
+                strcpy_s(messageToSend, message.c_str());
+                msgPacket.setMessage(messageToSend);
+
+                PacketManager pM(msgPacket.serialize());
+                Packet* packet = pM.getPacket();
+
+                int response = send(server.getClientSockets().back(), packet->serialize(), maxPacketSize, 0);
+
                 if ( !client.connectToServer("127.0.0.1", CLIENT_PORT) ) {
                     std::cout << "Server Connection Failed.\n";
                     break;

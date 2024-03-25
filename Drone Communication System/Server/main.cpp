@@ -8,7 +8,7 @@
 
 int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket);
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer);
-void mainLoop(bool& connectionStatus, bool& listening);
+void mainLoop(bool& connectionPending, bool& listening);
 
 #define TOWER_ID "AA001"
 #define SERVER_PORT 12345
@@ -17,9 +17,9 @@ void mainLoop(bool& connectionStatus, bool& listening);
 
 int main(void) {
 
-    bool connectionStatus = false;
+    bool connectionPending = false;
     bool listening = false;
-    std::thread main = std::thread([&]() { mainLoop(connectionStatus, listening); });
+    std::thread main = std::thread([&]() { mainLoop(connectionPending, listening); });
     while ( listening == false ) {}   // wait to start listening
     while ( true ) {
         Client client(TOWER_ID);
@@ -35,16 +35,33 @@ int main(void) {
             if ( choice == 1 ) {
                 // Connect to the server
                 std::cout << "Waiting...\n";
-                if ( !client.connectToServer("127.0.0.1", 20000) ) {
+                if ( !client.connectToServer("127.0.0.1", LISTEN_PORT) ) {
                     std::cout << "Server Connection Failed.\n";
                     break;
                 }
-                connectionStatus = true;
+
+                char RxBuffer[maxPacketSize] = {};
+                if ( recv(client.getClientSocket(), RxBuffer, maxPacketSize, 0) <= 0 ) {
+                    std::cout << "Response Lost.\n";
+                    break;
+                } 
+
+                PacketManager pM(RxBuffer);
+                if ( pM.getPacketType() == PacketType::packetMessage ) {
+                    MessagePacket* msgPacket = new MessagePacket(RxBuffer);
+                    client.setCurrMessage(msgPacket->getMessage());
+                    std::cout << client.getCurrMessage() << "\n";
+                }
+                Sleep(2000);
+                connectionPending = false;
                 main.join();
 
             } else if ( choice == 2 ) {
-                connectionStatus = false;
-                main.join();
+
+                if ( connectionPending == true ) {
+                    connectionPending = false;
+                    main.join();
+                }
 
             } else {
                 std::cout << "Invalid Option.\n";
@@ -57,7 +74,7 @@ int main(void) {
     return 0;
 }
 
-void mainLoop(bool& connectionStatus, bool& listening) {
+void mainLoop(bool& connectionPending, bool& listening) {
     // Main server loop to accept connections and handle them
     while ( true ) {
 
@@ -89,9 +106,9 @@ void mainLoop(bool& connectionStatus, bool& listening) {
             break;
         }
 
-        connectionStatus = true;
+        connectionPending = true;
         listening = false;
-        while ( connectionStatus != false ) {
+        while ( connectionPending != false ) {
             printToCoordinates(6, 0, (char*)"Connection incoming... (10)");
         }
 
