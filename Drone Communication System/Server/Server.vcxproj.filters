@@ -21,24 +21,21 @@
     <ClCompile Include="Server.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ServerRequester.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Packet.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Server.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MessagePacket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PacketManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ChatWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ChatWindowCommunication.h">
+    <ClInclude Include="ServerRequester.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ServerMenus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

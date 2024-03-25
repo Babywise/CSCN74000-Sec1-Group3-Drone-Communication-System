@@ -1,5 +1,5 @@
 #pragma once
-#include "ChatWindowCommunication.h"
+#include "../DCS Class Library/ChatWindowCommunication.h"
 #include "conio.h"
 #include "Server.h"
 

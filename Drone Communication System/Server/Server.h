@@ -1,7 +1,7 @@
 #pragma once
 #pragma comment(lib, "ws2_32.lib")
-#include "Packet.h"
-#include "PacketManager.h"
+#include "../DCS Class Library/Packet.h"
+#include "../DCS Class Library/PacketManager.h"
 
 #include <winsock2.h>
 #include <iostream>
