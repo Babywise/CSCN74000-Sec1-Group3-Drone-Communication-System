@@ -21,7 +21,7 @@ Server::Server(std::string towerID, int port)
     // Bind the ip address and port to a socket
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = INADDR_ANY;
-    serverAddress.sin_port = htons(port); // port 12345
+    serverAddress.sin_port = htons(port);
 
     // Bind the server socket to the specified IP and port
     if ( bind(serverSocket, reinterpret_cast<SOCKADDR*>(&serverAddress), sizeof(serverAddress)) == SOCKET_ERROR ) {

@@ -1,12 +1,11 @@
 #pragma once
-#include <stdlib.h>
-#include <vector>
-#include <mutex>
-
-#include "../Shared/ChatWindowCommunication.h"
+#include "../DCS Class Library/ChatWindowCommunication.h"
 #include "conio.h"
 #include "Server.h"
 
+#include <stdlib.h>
+#include <vector>
+#include <mutex>
 
 #define LINE_COUNT 15
 #define EXIT_COMMAND "exit\r"

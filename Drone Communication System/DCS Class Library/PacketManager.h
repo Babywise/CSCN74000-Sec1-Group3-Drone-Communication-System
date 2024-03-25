@@ -1,6 +1,6 @@
 #pragma once
-#include "../Shared/Packet.h"
-#include "../Shared/MessagePacket.h"
+#include "Packet.h"
+#include "MessagePacket.h"
 
 class PacketManager {
 	Packet* packet;
@@ -24,7 +24,7 @@ public:
 private:
 	Packet* setupPacket(char* buffer) {
 
-		switch (this->pType)
+		switch ( this->pType )
 		{
 		case PacketType::packetInvalid:
 			//throw new exception("Not Implemented");

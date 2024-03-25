@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CppUnitTest.h"
-#include "../Shared/ChatWindowCommunication.h"
+#include "../DCS Class Library/ChatWindowCommunication.h"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace clienttests

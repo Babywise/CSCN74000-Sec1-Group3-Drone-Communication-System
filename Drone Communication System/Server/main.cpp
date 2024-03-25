@@ -1,129 +1,180 @@
 #include "Server.h"
+#include "ChatWindow.h"
+#include "ServerRequester.h"
+#include "ServerMenus.h"
 
 #include <thread>
 #include <iostream>
-//#include "ChatServer.h"
-#include "ChatWindow.h"
-#include "../Shared/menus.h"
+#include <fstream>
+
 int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket);
-void main_loop(bool &connectionStatus, bool &listening);   
+void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer);
+void mainLoop(bool& connectionPending, bool& listening);
+
 #define TOWER_ID "AA001"
-#define RX_PORT 10000
-#define TX_PORT 12345
-
-
-
-
+#define SERVER_PORT 12345
+#define CHAT_PORT 10000
+#define LISTEN_PORT 20000
 
 int main(void) {
-    bool connectionStatus = false;
+
+    bool connectionPending = false;
     bool listening = false;
-    std::thread main= std::thread([&]() { main_loop(connectionStatus,listening); });
-    while(listening==false){}   // wait to start listening
-    while (true) {
-      // get input from user
+    std::thread main = std::thread([&]() { mainLoop(connectionPending, listening); });
+    while ( listening == false ) {}   // wait to start listening
+    while ( true ) {
+        Client client(TOWER_ID);
+
         std::string command;
-        std::system("cls");
-        std::cout << "1. Connect" << std::endl;
-        std::cout << "2. Check connections" << std::endl;
-        std::cout << "3. Exit" << std::endl;
-        printToCoordinates(LINE_COUNT + 3, 0, (char*)"Enter : ");
-        std::cin >> command;
-        if (command == "1") {
-			// Connect to the client
-		}
-		else
-        if (command == "2") {
-            // check connections
-			connectionStatus = false;
-            main.join();
-            main = std::thread([&]() { main_loop(connectionStatus, listening); });
-		}
-        else if (command == "3") {
-			// exit
-			break;
+
+        while ( command != "1" && command != "2" && command != "3" ) {
+
+            serverStartMenu(TOWER_ID);
+
+            std::cin >> command;
+            int choice = std::stoi(command);
+            if ( choice == 1 ) {
+                // Connect to the server
+                std::cout << "Waiting...\n";
+                if ( !client.connectToServer("127.0.0.1", LISTEN_PORT) ) {
+                    std::cout << "Server Connection Failed.\n";
+                    break;
+                }
+
+                char RxBuffer[maxPacketSize] = {};
+                if ( recv(client.getClientSocket(), RxBuffer, maxPacketSize, 0) <= 0 ) {
+                    std::cout << "Response Lost.\n";
+                    break;
+                } 
+
+                PacketManager pM(RxBuffer);
+                if ( pM.getPacketType() == PacketType::packetMessage ) {
+                    MessagePacket* msgPacket = new MessagePacket(RxBuffer);
+                    client.setCurrMessage(msgPacket->getMessage());
+                    std::cout << client.getCurrMessage() << "\n";
+                }
+                Sleep(2000);
+                connectionPending = false;
+                main.join();
+
+            } else if ( choice == 2 ) {
+
+                if ( connectionPending == true ) {
+                    connectionPending = false;
+                    //use sockets below 
+                    // checkConnectionsFromClient(threads, server, chatServer);
+                    main.join();
+                    //Potentially needed
+                    //main = std::thread([&]() { mainLoop(connectionPending, listening); });
+                }
+
+            } else {
+                std::cout << "Invalid Option.\n";
+            }
         }
-	}
-    
+
+        client.closeConnection();
+    }
 
     return 0;
 }
 
-void main_loop(bool &connectionStatus,bool& listening) {
+void mainLoop(bool& connectionPending, bool& listening) {
     // Main server loop to accept connections and handle them
     while (true) {
 
         std::system("cls");
 
-        Server server(TOWER_ID, TX_PORT);
-        Server chatServer(TOWER_ID, RX_PORT);
+        Server server(TOWER_ID, SERVER_PORT);
+        Server chatServer(TOWER_ID, CHAT_PORT);
 
-        if (!server.listenforConnection()) {
+        if ( !server.listenforConnection() ) {
             std::cout << "Server Listening Failed.\n";
             break;
         }
-        if (!chatServer.listenforConnection()) {
+        if ( !chatServer.listenforConnection() ) {
             std::cout << "Chat Server Listening Failed.\n";
             break;
         }
 
         std::cout << "Listening for connections...\n";
-     
+
         std::vector<std::thread> threads;
         listening = true;
-        if (!server.acceptConnection()) {
+
+        if ( !server.acceptConnection() ) {
             std::cout << "Accepting Server Connection Failed.\n";
             break;
         }
-        if (!chatServer.acceptConnection()) {
+        if ( !chatServer.acceptConnection() ) {
             std::cout << "Accepting Chat Server Connection Failed.\n";
             break;
         }
 
-        connectionStatus = true;
+        connectionPending = true;
         listening = false;
-        while (connectionStatus != false) {
-            printToCoordinates(LINE_COUNT + 3, 0, (char*)"Connection incoming");
+        while ( connectionPending != false ) {
+            printToCoordinates(6 /*replace with non magic number (screen position)*/, 0, (char*)"Connection incoming... (10)");
         }
-        std::string command;
 
-        while (command != "1" && command != "2") {
-            accept_reject_menu();
-            std::cin >> command;
-            int choice = std::stoi(command);
-            if (choice == 2) {
-                if (!server.closeLastConnection()) {
-                    std::cout << "Closing Server Connection Failed.\n";
-                    break;
-                }
-                if (!chatServer.closeLastConnection()) {
-                    std::cout << "Closing Chat Server Connection Failed.\n";
-                    break;
-                }
-                server.shutdownServer();
-                chatServer.shutdownServer();
-                return;
-            }
-            else if (choice == 1) {
-                threads.push_back(std::thread([&]() { clientService(server, server.getClientSockets().back(), chatServer, chatServer.getClientSockets().back()); }));
-                threads.back().join();
-                std::cout << "Thread created\n";
-            }
-        }
+        //Potentially move this to main
+        checkConnectionsFromClient(threads, server, chatServer);
 
         server.shutdownServer();
         chatServer.shutdownServer();
     }
 }
+
+bool receiveImage(Server& chatServer, SOCKET& clientChatSocket) {
+    while (true) {
+        int imageSize;
+        int recvResult = recv(clientChatSocket, reinterpret_cast<char*>(&imageSize), sizeof(imageSize), 0);
+        if (recvResult <= 0 || imageSize == -1) {
+            std::cout << "No more images to receive or connection closed by client.\n";
+            break;
+        }
+
+        std::string filename = "./Images/received_image_" + std::to_string(time(nullptr)) + ".jpg";
+        std::ofstream outFile(filename, std::ios::binary);
+        if (!outFile) {
+            std::cerr << "Failed to create file\n";
+            break;
+        }
+
+        char buffer[1024];
+        int totalBytesReceived = 0;
+        while (totalBytesReceived < imageSize) {
+            int bytesRead = recv(clientChatSocket, buffer, sizeof(buffer), 0);
+            if (bytesRead == SOCKET_ERROR) {
+                std::cerr << "Error receiving data: " << WSAGetLastError() << '\n';
+                outFile.close();
+                break;
+            }
+            outFile.write(buffer, bytesRead);
+            totalBytesReceived += bytesRead;
+        }
+
+        std::cout << "Image received: " << filename << "\n";
+        outFile.close();
+
+        // Send acknowledgment back to client
+        std::string ackMessage = "Image received successfully";
+        send(clientChatSocket, ackMessage.c_str(), ackMessage.length(), 0);
+    }
+    system("pause");
+    return true;
+}
+
+
 int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket) {
-    // create a terminal window
 
     //get and set drone id
     //->
     server.setDroneID("replace_me_droneID");
     while ( true ) {
-        // clear screen
-        server_main_menu(server.getTowerID(), server.getDroneID());
+
+        serverDroneMenu(server.getTowerID(), server.getDroneID());
+
         std::string command;
         std::cin >> command;
 
@@ -133,10 +184,41 @@ int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCK
         case 1:
             runChatWindow(chatServer, clientChatSocket);
             break;
+        case 2:
+            receiveImage(chatServer, clientChatSocket);
         default:
             std::cout << "No Option Selected.\n";
             break;
         }
     }
     return 1;
+}
+
+void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer) {
+
+    std::string command;
+
+    while ( command != "1" && command != "2" ) {
+
+        serverConnectionMenu();
+
+        std::cin >> command;
+        int choice = std::stoi(command);
+        if ( choice == 2 ) {
+            if ( !server.closeLastConnection() ) {
+                std::cout << "Closing Server Connection Failed.\n";
+                break;
+            }
+            if ( !chatServer.closeLastConnection() ) {
+                std::cout << "Closing Chat Server Connection Failed.\n";
+                break;
+            }
+            return;
+        } else if ( choice == 1 ) {
+            threads.push_back(std::thread([&]() { clientService(server, server.getClientSockets().back(), chatServer, chatServer.getClientSockets().back()); }));
+            threads.back().join();
+            std::cout << "Thread created\n";
+        }
+    }
+
 }
