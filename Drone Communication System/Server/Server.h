@@ -1,7 +1,8 @@
 #pragma once
+
 #pragma comment(lib, "ws2_32.lib")
 #include "../Shared/Packet.h"
-#include "PacketManager.h"
+#include "../Shared/PacketManager.h"
 
 #include <winsock2.h>
 #include <iostream>

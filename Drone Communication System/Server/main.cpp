@@ -4,7 +4,7 @@
 #include <iostream>
 //#include "ChatServer.h"
 #include "ChatWindow.h"
-#include "menus.h"
+#include "../Shared/menus.h"
 int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket);
 void main_loop(bool &connectionStatus, bool &listening);   
 #define TOWER_ID "AA001"
@@ -23,6 +23,7 @@ int main(void) {
     while (true) {
       // get input from user
         std::string command;
+        std::system("cls");
         std::cout << "1. Connect" << std::endl;
         std::cout << "2. Check connections" << std::endl;
         std::cout << "3. Exit" << std::endl;
@@ -36,6 +37,7 @@ int main(void) {
             // check connections
 			connectionStatus = false;
             main.join();
+            main = std::thread([&]() { main_loop(connectionStatus, listening); });
 		}
         else if (command == "3") {
 			// exit
@@ -79,7 +81,7 @@ void main_loop(bool &connectionStatus,bool& listening) {
         }
 
         connectionStatus = true;
-
+        listening = false;
         while (connectionStatus != false) {
             printToCoordinates(LINE_COUNT + 3, 0, (char*)"Connection incoming");
         }
@@ -98,6 +100,8 @@ void main_loop(bool &connectionStatus,bool& listening) {
                     std::cout << "Closing Chat Server Connection Failed.\n";
                     break;
                 }
+                server.shutdownServer();
+                chatServer.shutdownServer();
                 return;
             }
             else if (choice == 1) {

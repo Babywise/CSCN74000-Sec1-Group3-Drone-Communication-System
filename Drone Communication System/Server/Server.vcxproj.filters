@@ -26,19 +26,10 @@
     <ClInclude Include="Server.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MessagePacket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PacketManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ChatWindow.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ChatWindowCommunication.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="menus.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

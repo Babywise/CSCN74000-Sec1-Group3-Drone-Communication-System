@@ -133,9 +133,6 @@
   <ItemGroup>
     <ClInclude Include="ChatWindowCommunication.h" />
     <ClInclude Include="ChatWindow.h" />
-    <ClInclude Include="menus.h" />
-    <ClInclude Include="MessagePacket.h" />
-    <ClInclude Include="PacketManager.h" />
     <ClInclude Include="Server.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

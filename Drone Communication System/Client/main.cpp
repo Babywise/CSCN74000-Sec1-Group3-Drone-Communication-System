@@ -1,9 +1,9 @@
 #include "../Shared/Packet.h"
-#include "MessagePacket.h"
+#include "../Shared/MessagePacket.h"
 #include "Client.h"
 #include "ChatWindow.h"
 #include "ClientListeningServer.h"
-#include "../server/menus.h"
+#include "../Shared/menus.h"
 #include <iostream>
 #include <string>
 
