@@ -165,8 +165,11 @@ bool receiveImage(Server& chatServer, SOCKET& clientChatSocket) {
     return true;
 }
 
+/*
 
-int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket) {
+@param: server: server object to handle server connections, chatServer: server object to handle chat communication, clientChatSocket: socket to handle chat communication
+*/
+int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket) {
 
     //get and set drone id
     //->
@@ -190,15 +193,22 @@ int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCK
             std::cout << "No Option Selected.\n";
             break;
         }
+        
     }
     return 1;
 }
 
+/*
+* This function is used to check on a connection request from a client and allow the user to accept or reject the connection
+* Push a new thread to the vector of threads to handle the connection then join the thread if connection is accepted
+@param threads: vector of threads to store the threads created, server: server object to handle server connections, chatServer: server object to handle chat server connections
+@return void
+*/
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer) {
 
     std::string command;
 
-    while ( command != "1" && command != "2" ) {
+    while ( command != "1" && command != "2" ) { // Accept or Reject
 
         serverConnectionMenu();
 
@@ -213,8 +223,9 @@ void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& serve
                 std::cout << "Closing Chat Server Connection Failed.\n";
                 break;
             }
+            // Send to client to let them know they were rejected
             return;
-        } else if ( choice == 1 ) {
+        } else if ( choice == 1 ) { // Handle connection with clientService.
             threads.push_back(std::thread([&]() { clientService(server, server.getClientSockets().back(), chatServer, chatServer.getClientSockets().back()); }));
             threads.back().join();
             std::cout << "Thread created\n";
