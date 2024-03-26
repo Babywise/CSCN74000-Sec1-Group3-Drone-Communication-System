@@ -15,14 +15,19 @@
 #define CLIENT_PORT 12345
 #define CHAT_PORT 10000
 #define LISTEN_PORT 20000
-
+#define SERVER_IMAGE_PATH "./Images/"
 
 void clientService(Client& client, Client& chatClient);
 void checkConnectionsFromServer(Client& client, Client& chatClient, Server& server);
+void mainLoop();
 
 int main(void) {
+    mainLoop();
+	return 0;
+}
 
-    while ( true ) {
+void mainLoop() {
+    while (true) {
 
         std::system("cls");
         // Create a client object
@@ -30,7 +35,7 @@ int main(void) {
         Client chatClient(DRONE_ID);
         Server server(DRONE_ID, LISTEN_PORT);
 
-        if ( !server.listenforConnection() ) {
+        if (!server.listenforConnection()) {
             std::cout << "Server Listening Failed.\n";
             break;
         }
@@ -39,29 +44,31 @@ int main(void) {
 
         std::string command;
 
-        while ( command != "1" && command != "2" && command != "3" ) {
+        while (command != "1" && command != "2" && command != "3") {
 
             clientStartMenu(DRONE_ID);
 
             std::cin >> command;
             int choice = std::stoi(command);
-            if ( choice == 1 ) {
+            if (choice == 1) { // connect
                 // Connect to the server
                 std::cout << "Waiting...\n";
-                if ( !client.connectToServer(SERVER_IP, CLIENT_PORT) ) {
+                if (!client.connectToServer(SERVER_IP, CLIENT_PORT)) {
                     std::cout << "Server Connection Failed.\n";
                     break;
                 }
 
-                if ( !chatClient.connectToServer(SERVER_IP, CHAT_PORT) ) {
+                if (!chatClient.connectToServer(SERVER_IP, CHAT_PORT)) {
                     std::cout << "Chat Server Connection Failed.\n";
                     break;
                 }
-                clientService(client, chatClient);
+                clientService(client, chatClient); // main loop
 
-            } else if ( choice == 2 ) {
+            }
+            else if (choice == 2) { // Check Connections
                 checkConnectionsFromServer(client, chatClient, server);
-            } else {
+            }
+            else {
                 std::cout << "Invalid Option.\n";
             }
         }
@@ -70,20 +77,20 @@ int main(void) {
         chatClient.closeConnection();
         server.shutdownServer();
     }
-	return 0;
 }
 
-void mainLoop() {
-
-}
-
-
+/*
+* This function sends an image to the server. It allows the user to input a file name and sends the image data to the server.
+@param chatClient The client object used to send the image data to the server.
+@return bool
+*/
 bool sendImage(Client& chatClient) {
 
     
     std::queue<std::string> imageQueue;
     std::string filename;
-    while (true) {
+
+    while (true) { // Get list of files to transmit
         std::cout << "Enter the name of the image file to send (or 'done' to finish): ";
         std::cin >> filename;
         if (filename == "done") {
@@ -92,11 +99,13 @@ bool sendImage(Client& chatClient) {
         imageQueue.push(filename);
     }
 
-    while (!imageQueue.empty()) {
+    while (!imageQueue.empty()) { // transmit all images
         std::string filename = imageQueue.front();
         imageQueue.pop();
-        std::string filepath = "./images/" + filename;
+        std::string filepath = SERVER_IMAGE_PATH + filename;
         std::ifstream file(filepath, std::ios::binary);
+
+
         if (!file) {
             std::cerr << "Failed to open image file\n";
             continue;
@@ -105,11 +114,11 @@ bool sendImage(Client& chatClient) {
         std::string imageData((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         int imageSize = imageData.size();
         std::cout << "Sending image size: " << imageSize << " bytes\n";
-        send(chatClient.getClientSocket(), reinterpret_cast<const char*>(&imageSize), sizeof(imageSize), 0);
+        send(chatClient.getClientSocket(), reinterpret_cast<const char*>(&imageSize), sizeof(imageSize), 0); // send image size
 
         int totalBytesSent = 0;
-        int packetSize = 1024;
-        while (totalBytesSent < imageSize) {
+        int packetSize = MAX_MESSAGE_SIZE;
+        while (totalBytesSent < imageSize) { // send image
             int bytesToSend = std::min<int>(packetSize, imageSize - totalBytesSent);
             int bytesSent = send(chatClient.getClientSocket(), imageData.data() + totalBytesSent, bytesToSend, 0);
             if (bytesSent == SOCKET_ERROR) {
@@ -118,17 +127,17 @@ bool sendImage(Client& chatClient) {
                 break;
             }
             totalBytesSent += bytesSent;
-            std::cout << "Sent " << bytesSent << " bytes (Total: " << totalBytesSent << "/" << imageSize << ")\n";
+            std::cout << "Sent " << bytesSent << " bytes (Total: " << totalBytesSent << "/" << imageSize << ")\n"; // update send status to screen
         }
 
         std::cout << "Image sent successfully\n";
         file.close();
 
         // Wait for acknowledgment
-        char ack[256];
+        char ack[MAX_MESSAGE_SIZE];
         int bytesReceived = recv(chatClient.getClientSocket(), ack, sizeof(ack), 0);
         if (bytesReceived > 0) {
-            ack[bytesReceived] = '\0';
+            ack[bytesReceived-1] = '\0';
             std::cout << "Server acknowledgment: " << ack << '\n';
         }
 
@@ -144,7 +153,11 @@ bool sendImage(Client& chatClient) {
     
 }
 
-
+/*
+* This function is used to handle the main menu once the client has connected to the server
+@param client: client object to handle server connections, chatClient: client object to handle chat communication
+@return void
+*/
 void clientService(Client& client, Client& chatClient) {
 
     while ( true ) {
@@ -154,18 +167,12 @@ void clientService(Client& client, Client& chatClient) {
         std::string command;
         std::cin >> command;
         int choice = std::stoi(command);
-
-        bool imageStatus = false;
-
-
         switch ( choice ) {
         case 1:
-            runChatWindow(chatClient);
+            runChatWindow(chatClient); // chat window
             break;
         case 2:
-            std::cout << "Piccc.\n";
-            imageStatus = sendImage(chatClient);
-            std::cout << "ImageStatus: " << imageStatus << std::endl;
+            std::cout << "ImageStatus: " <<sendImage(chatClient) << std::endl; // image sending
             break;
         default:
             std::cout << "No Option Selected.\n";
@@ -174,6 +181,11 @@ void clientService(Client& client, Client& chatClient) {
     }
 }
 
+/*
+* This function is used to check the connections from the server
+@param client: client object to handle server connections, chatClient: client object to handle chat communication, server: server object to handle server connections
+@return void
+*/
 void checkConnectionsFromServer(Client& client, Client& chatClient, Server& server) {
 
     std::string command;
@@ -204,7 +216,7 @@ void checkConnectionsFromServer(Client& client, Client& chatClient, Server& serv
 
                 PacketManager pM(msgPacket.serialize());
                 Packet* packet = pM.getPacket();
-
+                // let the server know that the client has accepted the connection
                 int response = send(server.getClientSockets().back(), packet->serialize(), maxPacketSize, 0);
 
                 if ( !client.connectToServer(SERVER_IP, CLIENT_PORT) ) {
@@ -216,7 +228,7 @@ void checkConnectionsFromServer(Client& client, Client& chatClient, Server& serv
                     std::cout << "Chat Server Connection Failed.\n";
                     break;
                 }
-
+                // Run main loop
                 clientService(client, chatClient);
             }
         }
