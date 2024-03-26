@@ -2,6 +2,14 @@
 
 #include <iostream>
 #define HEADER_BYTE_SIZE 16
+#define MAX_MESSAGE_SIZE 78000
+#define SERVER_IP "127.0.0.1"
+#define CLIENT_PORT 12345
+#define CHAT_PORT 10000
+#define LISTEN_PORT 20000
+#define SERVER_PORT 12345
+#define MAX_PACKET_SIZE 79124
+
 using namespace std;
 
 enum class PacketType {
@@ -9,7 +17,7 @@ enum class PacketType {
 	packetMessage
 };
 
-const unsigned int maxPacketSize = 1024;
+const unsigned int maxPacketSize = MAX_PACKET_SIZE;
 const unsigned int emptyPacketSize = HEADER_BYTE_SIZE;
 
 class Packet {

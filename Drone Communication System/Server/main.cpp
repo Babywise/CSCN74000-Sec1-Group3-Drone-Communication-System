@@ -2,7 +2,7 @@
 #include "ChatWindow.h"
 #include "ServerRequester.h"
 #include "ServerMenus.h"
-
+#include "../DCS Class Library/Packet.h"
 #include <thread>
 #include <iostream>
 #include <fstream>
@@ -12,14 +12,12 @@ void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& serve
 void mainLoop(bool& connectionPending, bool& listening);
 
 #define TOWER_ID "AA001"
-#define SERVER_PORT 12345
-#define CHAT_PORT 10000
-#define LISTEN_PORT 20000
 #define NOTIFY_CONNECTION_LINE 6
-string droneID = "replace_me_droneID";
 #define IMAGE_PATH "./Images/received_image_"
+
+string droneID = "replace_me_droneID";
 string extension = ".jpg";
-#define SERVER_ADDRESS "127.0.0.1"
+
 void main_program();
 /*
 * Main function to run the server and client
@@ -54,7 +52,7 @@ void main_program() {
             if (choice == 1) {
                 // Connect to the server
                 std::cout << "Waiting...\n";
-                if (!client.connectToServer(SERVER_ADDRESS, LISTEN_PORT)) {
+                if (!client.connectToServer(SERVER_IP, LISTEN_PORT)) {
                     std::cout << "Server Connection Failed.\n";
                     break;
                 }

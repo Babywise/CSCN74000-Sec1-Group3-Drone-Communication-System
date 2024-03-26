@@ -4,18 +4,15 @@
 #include "ChatWindow.h"
 #include "ClientListeningServer.h"
 #include "ClientMenus.h"
-
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <queue>
 
 #define DRONE_ID "D001"
-#define SERVER_IP "127.0.0.1"
-#define CLIENT_PORT 12345
-#define CHAT_PORT 10000
-#define LISTEN_PORT 20000
 #define SERVER_IMAGE_PATH "./Images/"
+
+
 
 void clientService(Client& client, Client& chatClient);
 void checkConnectionsFromServer(Client& client, Client& chatClient, Server& server);

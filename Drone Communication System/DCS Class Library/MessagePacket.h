@@ -1,6 +1,5 @@
 #pragma once
 #include "../DCS Class Library/Packet.h"
-#define MAX_MESSAGE_SIZE 256
 
 class MessagePacket : public Packet {
 private:
