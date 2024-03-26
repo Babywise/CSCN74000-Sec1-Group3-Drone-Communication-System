@@ -21,9 +21,6 @@
     <ClCompile Include="..\client_tests\ChatWindowCommunication_tests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MenusTests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="MessagePacketTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -1,6 +1,6 @@
 #include "pch.h"
 #include "CppUnitTest.h"
-#include "../DCS Class Library/ChatWindowCommunication.h"
+#include "../DCS Class Library/PacketManager.h"
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 
 namespace Librarytests
@@ -10,9 +10,21 @@ namespace Librarytests
 	{
 	public:
 
-		TEST_METHOD(Method1)
+		TEST_METHOD(Packet_type_message)
 		{
-			Assert::AreEqual(0, 0);
+			MessagePacket msgpckt = MessagePacket();
+			msgpckt.setMessage("welcome home");
+			PacketManager pcktMngr(msgpckt.serialize());
+			pcktMngr.getPacketType();
+			Assert::AreEqual((int)PacketType::packetMessage, (int)pcktMngr.getPacketType());
+		}
+		TEST_METHOD(Packet_deserialize)
+		{
+			MessagePacket msgpckt = MessagePacket();
+			msgpckt.setMessage("welcome home");
+			PacketManager pcktMngr(msgpckt.serialize());
+			MessagePacket msgPacketCompare = MessagePacket(pcktMngr.getPacket()->serialize());
+			Assert::AreEqual((string)"welcome home", msgPacketCompare.getMessage());
 		}
 	};
 }

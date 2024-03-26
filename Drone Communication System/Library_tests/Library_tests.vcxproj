@@ -157,7 +157,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\client_tests\ChatWindowCommunication_tests.cpp" />
-    <ClCompile Include="MenusTests.cpp" />
     <ClCompile Include="MessagePacketTests.cpp" />
     <ClCompile Include="PacketManagerTests.cpp" />
     <ClCompile Include="PacketTests.cpp" />
