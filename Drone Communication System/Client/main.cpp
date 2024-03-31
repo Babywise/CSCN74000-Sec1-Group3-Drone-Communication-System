@@ -24,7 +24,9 @@ int main(void) {
 }
 
 void mainLoop() {
-    while (true) {
+    std::string command;
+
+    while ( command != "3" ) {
 
         std::system("cls");
         // Create a client object
@@ -38,8 +40,6 @@ void mainLoop() {
         }
 
         std::cout << "Listening for connections...\n";
-
-        std::string command;
 
         while (command != "1" && command != "2" && command != "3") {
 
@@ -61,11 +61,13 @@ void mainLoop() {
                 }
                 clientService(client, chatClient); // main loop
 
-            }
-            else if (choice == 2) { // Check Connections
+            } else if (choice == 2) { // Check Connections
                 checkConnectionsFromServer(client, chatClient, server);
-            }
-            else {
+            } else if ( choice == 3 ) {
+                std::cout << "Thank you for using Drone Communication System!\n";
+                Sleep(2000);
+                break;
+            } else {
                 std::cout << "Invalid Option.\n";
             }
         }
