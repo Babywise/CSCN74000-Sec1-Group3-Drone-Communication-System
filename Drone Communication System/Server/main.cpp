@@ -23,7 +23,6 @@ void main_program();
 * Main function to run the server and client
 */
 int main(void) {
-
     main_program();
 
     return 0;

@@ -8,7 +8,6 @@
 #include <string>
 #include <fstream>
 #include <queue>
-
 #define DRONE_ID "D001"
 #define SERVER_IMAGE_PATH "./Images/"
 
