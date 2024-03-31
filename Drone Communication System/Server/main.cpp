@@ -9,7 +9,7 @@
 
 int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket);
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer);
-void mainLoop(bool& connectionPending, bool& listening);
+void mainLoop(bool& connectionPending, bool& listening, std::string& command, bool& menuSelected);
 
 #define TOWER_ID "AA001"
 #define NOTIFY_CONNECTION_LINE 6
@@ -25,23 +25,23 @@ void main_program();
 int main(void) {
 
     main_program();
-
     return 0;
 }
 
 void main_program() {
     bool connectionPending = false;
     bool listening = false;
-    std::thread main = std::thread([&]() { mainLoop(connectionPending, listening); });
+    std::string command;
+    bool menuSelected = false;
+    std::thread main = std::thread([&]() { mainLoop(connectionPending, listening, command, menuSelected); });
 
 
     while (listening == false) {}   // wait to start listening
 
 
-    while (true) {
-        Client client(TOWER_ID);
+    while ( command != "3" ) {
 
-        std::string command;
+        Client client(TOWER_ID);
 
         while (command != "1" && command != "2" && command != "3") { // user can connect / check, disconnect
 
@@ -49,6 +49,8 @@ void main_program() {
 
             std::cin >> command;
             int choice = std::stoi(command);
+            menuSelected == true;
+
             if (choice == 1) {
                 // Connect to the server
                 std::cout << "Waiting...\n";
@@ -75,12 +77,16 @@ void main_program() {
 
             }
             else if (choice == 2) {
-
+                Sleep(1000);
                 if (connectionPending == true) {
                     connectionPending = false;
                     main.join();
                 }
 
+            } else if ( choice == 3 ) {
+                std::cout << "Thank you for using Drone Communication System!\n";
+                Sleep(2000);
+                break;
             }
             else {
                 std::cout << "Invalid Option.\n";
@@ -89,6 +95,7 @@ void main_program() {
 
         client.closeConnection();
     }
+    main.join();
 }
 
 /*
@@ -97,9 +104,9 @@ void main_program() {
 @param connectionPending: bool to check if a connection is pending, listening: bool to check if the server is listening
 @return void
 */
-void mainLoop(bool& connectionPending, bool& listening) {
+void mainLoop(bool& connectionPending, bool& listening, string& command, bool& menuSelected) {
     // Main server loop to accept connections and handle them
-    while (true) {
+    while ( command != "3" ) {
 
         std::system("cls");
 
@@ -119,25 +126,38 @@ void mainLoop(bool& connectionPending, bool& listening) {
 
         std::vector<std::thread> threads;
         listening = true; // inform main loop we are listening
+        bool continueProgram = true;
 
-        if ( !server.acceptConnection() ) {
-            std::cout << "Accepting Server Connection Failed.\n";
-            break;
+
+        while ( menuSelected != true) {
+            if ( command == "3" ) {
+                continueProgram = false;
+                break;
+            } else if ( command == "1" || command == "2" ) {
+                continueProgram = true;
+                break;
+            }
         }
-        if ( !chatServer.acceptConnection() ) {
-            std::cout << "Accepting Chat Server Connection Failed.\n";
-            break;
+        if ( continueProgram ) {
+            if ( !server.acceptConnection() ) {
+                std::cout << "Accepting Server Connection Failed.\n";
+                break;
+            }
+            if ( !chatServer.acceptConnection() ) {
+                std::cout << "Accepting Chat Server Connection Failed.\n";
+                break;
+            }
+
+            connectionPending = true; // Connection was made so inform main loop that a connection is pending
+            listening = false; // The server is no longer listening since the sockets are used
+            while ( connectionPending != false ) { // until user accepts connection
+                printToCoordinates(NOTIFY_CONNECTION_LINE, 0, (char*)"Connection incoming... (10)");
+            }
+
+            //Potentially move this to main
+            checkConnectionsFromClient(threads, server, chatServer);
         }
-
-        connectionPending = true; // Connection was made so inform main loop that a connection is pending
-        listening = false; // The server is no longer listening since the sockets are used
-        while ( connectionPending != false ) { // until user accepts connection
-            printToCoordinates(NOTIFY_CONNECTION_LINE, 0, (char*)"Connection incoming... (10)");
-        }
-
-        //Potentially move this to main
-        checkConnectionsFromClient(threads, server, chatServer);
-
+        
         server.shutdownServer();
         chatServer.shutdownServer();
     }
