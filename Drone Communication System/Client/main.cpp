@@ -174,9 +174,10 @@ void clientService(Client& client, Client& chatClient) {
         switch ( choice ) {
         case 1:
             runChatWindow(chatClient); // chat window
+            running = false;
             break;
         case 2:
-            std::cout << "ImageStatus: " <<sendImage(chatClient) << std::endl; // image sending
+            std::cout << "ImageStatus: " << sendImage(chatClient) << std::endl; // image sending
             break;
         case 3:
             std::cout << "GoodBye!" << std::endl;

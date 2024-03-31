@@ -130,21 +130,23 @@ void UpdateWindow(ChatWindow& window) {
 	}
 }
 
-void listener(ChatWindow& window, Client& chatClient) {
+void listener(ChatWindow& window, Client& chatClient, string& message) {
 
-	while ( !window.isTerminating() || window.HasUpdate() ) {
+	while ( (!window.isTerminating() || window.HasUpdate()) && message != "exit" ) {
 		// if message received
+		chatClient.setTimeout(1);
 		if ( recieveChatMessage(chatClient) ) {
 			window.addChat((char*)DEFAULT_DATE, chatClient.getCurrMessage());
 		}
 		chatClient.clearCurrMessage();
 	}
+	Sleep(1000);
 }
 
 int runChatWindow(Client& chatClient) {
 	ChatWindow CHAT;
 	std::thread t1 = std::thread([&]() { UpdateWindow(CHAT); });
-	std::thread t2 = std::thread([&]() { listener(CHAT, chatClient); });
+	std::thread t2 = std::thread([&]() { listener(CHAT, chatClient, CHAT.message); });
 	std::string message = "";
 	while ( true )
 	{
