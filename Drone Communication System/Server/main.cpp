@@ -93,6 +93,10 @@ void main_program() {
             }
         }
 
+        if ( command != "3" ) {
+            command.erase();
+        }
+
         client.closeConnection();
     }
     main.join();
@@ -158,6 +162,12 @@ void mainLoop(bool& connectionPending, bool& listening, string& command, bool& m
             checkConnectionsFromClient(threads, server, chatServer);
         }
         
+        //needs work may need to spawn a new thread or something
+        if ( command != "3" ) {
+            menuSelected = false;
+            command.erase();
+        }
+
         server.shutdownServer();
         chatServer.shutdownServer();
     }
@@ -221,7 +231,9 @@ int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket) 
     //get and set drone id
     //->
     server.setDroneID(droneID);
-    while ( true ) {
+    bool running = true;
+
+    while ( running ) {
 
         serverDroneMenu(server.getTowerID(), server.getDroneID()); // Print Menu
 
@@ -236,6 +248,10 @@ int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket) 
             break;
         case 2:
             receiveImage(clientChatSocket); // Request image
+        case 3:
+            std::cout << "GoodBye!" << std::endl;
+            running = false;
+            break;
         default:
             std::cout << "No Option Selected.\n";
             break;
