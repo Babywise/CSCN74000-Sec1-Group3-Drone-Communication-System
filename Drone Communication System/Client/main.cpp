@@ -70,8 +70,11 @@ void mainLoop() {
             } else {
                 std::cout << "Invalid Option.\n";
             }
+            
         }
-
+        if ( command != "3" ) {
+            command.erase();
+        }
         client.closeConnection();
         chatClient.closeConnection();
         server.shutdownServer();
@@ -159,7 +162,9 @@ bool sendImage(Client& chatClient) {
 */
 void clientService(Client& client, Client& chatClient) {
 
-    while ( true ) {
+    bool running = true;
+
+    while ( running ) {
 
         clientDroneMenu(client.getDroneID(), client.getTowerID());
 
@@ -172,6 +177,10 @@ void clientService(Client& client, Client& chatClient) {
             break;
         case 2:
             std::cout << "ImageStatus: " <<sendImage(chatClient) << std::endl; // image sending
+            break;
+        case 3:
+            std::cout << "GoodBye!" << std::endl;
+            running = false;
             break;
         default:
             std::cout << "No Option Selected.\n";
