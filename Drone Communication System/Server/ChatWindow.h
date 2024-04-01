@@ -16,7 +16,7 @@
 #define CHECK_INTERVAL 100
 #define ENTER_MESSAGE "Enter message: "
 
-
+// Function to send a message from the server
 bool sendChatMessage(Server& server, SOCKET& clientSocket, std::string message) {
 
 	MessagePacket msgPacket;
@@ -34,6 +34,7 @@ bool sendChatMessage(Server& server, SOCKET& clientSocket, std::string message) 
 	}
 }
 
+// Function to recieve a message from the client
 bool recieveChatMessage(Server& server, SOCKET& clientSocket) {
 
 	char RxBuffer[maxPacketSize] = {};
@@ -55,6 +56,7 @@ bool recieveChatMessage(Server& server, SOCKET& clientSocket) {
 	return true;
 }
 
+// Function to send a message from the client
 bool sendClientMessage(Client& client, std::string message) {
 	/*
 	* Send message to server
@@ -74,6 +76,7 @@ bool sendClientMessage(Client& client, std::string message) {
 	}
 }
 
+// Function to recieve a message from the server
 bool recieveClientMessage(Client& client) {
 
 	char RxBuffer[maxPacketSize] = {};
@@ -96,6 +99,7 @@ bool recieveClientMessage(Client& client) {
 
 }
 
+// Function to print to a specific coordinate on the screen
 void printToCoordinates(int y, int x, char* text)
 {
 	printf("\033[%d;%dH%s", y, x, text);
@@ -186,10 +190,12 @@ void listener(ChatWindow& window, Server& chatClient, SOCKET& clientSocket, stri
 	while ( (!window.isTerminating() || window.HasUpdate()) && message != EXIT_COMMAND ) {
 		// if message received
 		chatClient.setTimeout(clientSocket, 1);
+		// wait for message
 		if ( recieveChatMessage(chatClient, clientSocket) ) {
 			window.addChat((char*)DEFAULT_DATE, chatClient.getCurrMessage());
 		}
 		chatClient.clearCurrMessage();
+		// if message is exit command and drone is disconnected
 		if ( message == EXIT_COMMAND && !window.isConnected() ) {
 			sendChatMessage(chatClient, clientSocket, "[" + chatClient.getTowerID() + "] " + "Server has disconnected");
 		}
@@ -219,7 +225,7 @@ int runChatWindow(Server& chatClient, SOCKET& clientSocket) {
 				CHAT.terminate();
 				break;
 			} else {
-				//send message to server
+				//send message to client
 				std::string add_to_chat = "[" + chatClient.getTowerID() + "] " + CHAT.message;
 				sendChatMessage(chatClient, clientSocket, add_to_chat);
 				CHAT.addChat((char*)DEFAULT_DATE, add_to_chat);

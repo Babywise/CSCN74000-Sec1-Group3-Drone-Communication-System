@@ -36,13 +36,6 @@ bool Client::connectToServer(const std::string& ipAddress, int port)
     }
 }
 
-int Client::sendPacket(Packet& packet)
-{
-    int sendResult = send(clientSocket, packet.serialize(), maxPacketSize, 0);
-
-    return sendResult;
-}
-
 bool Client::closeConnection()
 {
     // Close server socket once server is done
@@ -52,6 +45,13 @@ bool Client::closeConnection()
     } else {
         return false;
     }
+}
+
+int Client::sendPacket(Packet& packet)
+{
+    int sendResult = send(clientSocket, packet.serialize(), maxPacketSize, 0);
+
+    return sendResult;
 }
 
 SOCKET Client::getClientSocket()
@@ -82,4 +82,12 @@ void Client::setCurrMessage(std::string message)
 void Client::clearCurrMessage()
 {
     this->currMessage.erase();
+}
+
+bool Client::setTimeout(int duration)
+{
+    if ( setsockopt(clientSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&duration, sizeof(duration)) == SOCKET_ERROR ) {
+        return false;
+    }
+    return true;
 }

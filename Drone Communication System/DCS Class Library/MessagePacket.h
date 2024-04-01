@@ -19,8 +19,8 @@ public:
             Head.pType = PacketType::packetMessage;
     };
 
+    // Deserialize the message from buffer
     MessagePacket(char* src) {
-        // Deserialize the message from buffer
         std::memcpy(&this->Head, src, sizeof(Head));
         std::memcpy(&this->Body, src + sizeof(Head), sizeof(Body));
 
@@ -28,6 +28,7 @@ public:
         this->buffer = nullptr;
     }
 
+    // Message
     void setMessage(char* message) {
 
         strcpy_s(this->Body.message, message);
@@ -37,6 +38,7 @@ public:
         return this->Body.message;
     }
 
+    // Serialize the packet
     char* serialize() override {
         unsigned int totalSize = emptyPacketSize + this->Head.Bytes;
 

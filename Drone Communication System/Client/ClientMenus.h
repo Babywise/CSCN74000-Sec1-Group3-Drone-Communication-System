@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 
+// Start Menu for Client
 void clientStartMenu(std::string droneId) {
     std::system("cls");
     std::cout << "(" << droneId << ") - Welcome to Next Level Drone Systems\n";
@@ -9,6 +10,7 @@ void clientStartMenu(std::string droneId) {
     std::cout << "3. Exit\n";
 }
 
+// Drone Menu for Client
 void clientDroneMenu(std::string towerId, std::string droneId) {
     std::system("cls");
     std::cout << "Drone ID: " << droneId << "\n";
@@ -19,6 +21,7 @@ void clientDroneMenu(std::string towerId, std::string droneId) {
     std::cout << "3. Disconnect\n";
 }
 
+// Connection Menu for Client
 void clientConnectionMenu() {
     std::system("cls");
     std::cout << "Server connected\n";

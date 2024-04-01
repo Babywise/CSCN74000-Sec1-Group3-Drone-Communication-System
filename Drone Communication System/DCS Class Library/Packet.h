@@ -26,24 +26,23 @@ class Packet {
 protected:
 	struct Header {
 		unsigned Source : HEADER_BYTE_SIZE;			//2 Bytes -> max = 65,535
-		unsigned Destination : HEADER_BYTE_SIZE;		//2 Bytes -> max = 65,535
-		PacketType pType;				//4 Bytes -> max = 2,147,483,647
-		unsigned int Bytes;				//4 Bytes -> max = 4,294,967,295
-		unsigned Fin : HEADER_BYTE_SIZE;				//2 byte  -> max = 255
-		unsigned Ack : HEADER_BYTE_SIZE;				//2 byte  -> max = 255
+		unsigned Destination : HEADER_BYTE_SIZE;	//2 Bytes -> max = 65,535
+		PacketType pType;							//4 Bytes -> max = 2,147,483,647
+		unsigned int Bytes;							//4 Bytes -> max = 4,294,967,295
+		unsigned Fin : HEADER_BYTE_SIZE;			//2 byte  -> max = 255
+		unsigned Ack : HEADER_BYTE_SIZE;			//2 byte  -> max = 255
 	} Head;
 
-	char* pSerialBuff;					//4 Bytes
-	char* buffer;						//4 Bytes
+	char* pSerialBuff;								//4 Bytes
+	char* buffer;									//4 Bytes
 
 public:
-	// creating
+	// Packet Creation
 	Packet() : pSerialBuff(nullptr), buffer(nullptr) {
 		Head.Source = 0, Head.Destination = 0, Head.pType = PacketType::packetInvalid, Head.Bytes = 0, Head.Fin = 0, Head.Ack = 0;
 	};
 
-	// receiving
-
+	// Deserialize the packet from buffer
 	Packet(char* src) {
 		std::memcpy(&this->Head, src, sizeof(Head));
 
@@ -51,6 +50,7 @@ public:
 		this->buffer = nullptr;
 	}
 
+	// Source
 	void setSource(unsigned source) {
 		this->Head.Source = source;
 	}
@@ -59,6 +59,7 @@ public:
 		return this->Head.Source;
 	}
 
+	// Destination
 	void setDestination(unsigned dest) {
 		this->Head.Destination = dest;
 	}
@@ -67,6 +68,7 @@ public:
 		return this->Head.Destination;
 	}
 
+	// Packet Type
 	void setPacketType(PacketType pType) {
 		this->Head.pType = pType;
 	}
@@ -75,6 +77,7 @@ public:
 		return this->Head.pType;
 	}
 
+	// Bytes
 	void setBytes(int Bytes) {
 		this->Head.Bytes = Bytes;
 	}
@@ -82,7 +85,8 @@ public:
 	int getBytes() {
 		return this->Head.Bytes;
 	}
-
+	
+	// Ack
 	void setAck(unsigned ack) {
 		this->Head.Ack = ack;
 	}
@@ -91,6 +95,7 @@ public:
 		return this->Head.Ack;
 	}
 
+	// Fin
 	void setFin(unsigned fin) {
 		this->Head.Fin = fin;
 	}
@@ -99,6 +104,7 @@ public:
 		return this->Head.Fin;
 	}
 
+	// Buffers
 	char* getpSerialBuff() {
 		return this->pSerialBuff;
 	}
@@ -107,6 +113,7 @@ public:
 		return this->buffer;
 	}
 
+	// Serialize the packet
 	virtual char* serialize() {
 
 		unsigned int TotalSize = emptyPacketSize + this->Head.Bytes;
