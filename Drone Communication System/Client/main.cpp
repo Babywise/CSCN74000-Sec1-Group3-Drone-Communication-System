@@ -15,19 +15,52 @@
 #define DRONE_ID "D001"
 #define SERVER_IMAGE_PATH "./Images/"
 
+
+enum class ServerState {
+    ACTIVE,
+    INACTIVE,
+    WAITING_IMAGE,
+    CHATTING,
+    LISTENING
+};
+
+
 void clientService(Client& client, Client& chatClient);
 void checkConnectionsFromServer(Client& client, Client& chatClient, Server& server);
 void mainLoop();
 
-int main(void) {
-    mainLoop();
-	return 0;
+
+ServerState STATE = ServerState::INACTIVE;
+
+
+void stateMachine() {
+    while (true) {
+        Server state_machine(DRONE_ID, CLIENT_STATE_PORT);
+        state_machine.listenforConnection();
+        state_machine.acceptConnection();
+        MessagePacket* msgPacket = new MessagePacket();
+        msgPacket->setMessage((char*)STATE);
+        state_machine.sendPacket(*msgPacket, state_machine.getClientSockets().back());
+        state_machine.closeLastConnection();
+    }
 }
 
+
+int main(void) {
+    std::thread state_machine = std::thread([&]() { stateMachine(); }); // Daemon thread to send state to client
+    state_machine.detach();
+    mainLoop();
+    return 0;
+}
+
+
+
 void mainLoop() {
+
     std::string command;
 
     while ( command != "3" ) {
+
 
         std::system("cls");
         // Create a client object
@@ -60,6 +93,7 @@ void mainLoop() {
                     std::cout << "Chat Server Connection Failed.\n";
                     break;
                 }
+
                 clientService(client, chatClient); // main loop
 
             } else if (choice == 2) { // Check Connections
