@@ -57,7 +57,7 @@ bool recieveChatMessage(Client& client) {
 
 void printToCoordinates(int y, int x, char* text)
 {
-	printf("\033[%d;%dH%s\n", y, x, text);
+	printf("\033[%d;%dH%s", y, x, text);
 }
 
 class ChatWindow {
