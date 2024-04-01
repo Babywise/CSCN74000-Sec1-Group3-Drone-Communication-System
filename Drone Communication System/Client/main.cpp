@@ -4,10 +4,14 @@
 #include "ChatWindow.h"
 #include "ClientListeningServer.h"
 #include "ClientMenus.h"
+#include <Windows.h>
+
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <queue>
+#include <codecvt>
+
 #define DRONE_ID "D001"
 #define SERVER_IMAGE_PATH "./Images/"
 
@@ -53,7 +57,10 @@ int main(void) {
 
 void mainLoop() {
 
-    while (true) {
+    std::string command;
+
+    while ( command != "3" ) {
+
 
         std::system("cls");
         // Create a client object
@@ -67,8 +74,6 @@ void mainLoop() {
         }
 
         std::cout << "Listening for connections...\n";
-
-        std::string command;
 
         while (command != "1" && command != "2" && command != "3") {
 
@@ -91,15 +96,20 @@ void mainLoop() {
 
                 clientService(client, chatClient); // main loop
 
-            }
-            else if (choice == 2) { // Check Connections
+            } else if (choice == 2) { // Check Connections
                 checkConnectionsFromServer(client, chatClient, server);
-            }
-            else {
+            } else if ( choice == 3 ) {
+                std::cout << "Thank you for using Drone Communication System!\n";
+                Sleep(2000);
+                break;
+            } else {
                 std::cout << "Invalid Option.\n";
             }
+            
         }
-
+        if ( command != "3" ) {
+            command.erase();
+        }
         client.closeConnection();
         chatClient.closeConnection();
         server.shutdownServer();
@@ -113,7 +123,15 @@ void mainLoop() {
 */
 bool sendImage(Client& chatClient) {
 
-    
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    if ( CreateDirectoryW(converter.from_bytes(SERVER_IMAGE_PATH).c_str(), NULL) ||
+        GetLastError() == ERROR_ALREADY_EXISTS ) {
+        std::cout << "Folder exists or was created successfully." << std::endl;
+    } else {
+        std::cout << "Failed to create folder." << std::endl;
+    }
+
     std::queue<std::string> imageQueue;
     std::string filename;
 
@@ -187,7 +205,9 @@ bool sendImage(Client& chatClient) {
 */
 void clientService(Client& client, Client& chatClient) {
 
-    while ( true ) {
+    bool running = true;
+
+    while ( running ) {
 
         clientDroneMenu(client.getDroneID(), client.getTowerID());
 
@@ -199,7 +219,11 @@ void clientService(Client& client, Client& chatClient) {
             runChatWindow(chatClient); // chat window
             break;
         case 2:
-            std::cout << "ImageStatus: " <<sendImage(chatClient) << std::endl; // image sending
+            std::cout << "ImageStatus: " << sendImage(chatClient) << std::endl; // image sending
+            break;
+        case 3:
+            std::cout << "GoodBye!" << std::endl;
+            running = false;
             break;
         default:
             std::cout << "No Option Selected.\n";

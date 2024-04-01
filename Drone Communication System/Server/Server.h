@@ -36,5 +36,6 @@ public:
     std::string getCurrMessage();
     void setCurrMessage(std::string message);
     void clearCurrMessage();
+    bool setTimeout(SOCKET& clientSocket, int duration);
 
 };

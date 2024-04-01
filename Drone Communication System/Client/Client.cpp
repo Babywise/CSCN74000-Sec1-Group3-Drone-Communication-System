@@ -83,3 +83,11 @@ void Client::clearCurrMessage()
 {
 	this->currMessage.erase();
 }
+
+bool Client::setTimeout(int duration)
+{
+    if ( setsockopt(clientSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&duration, sizeof(duration)) == SOCKET_ERROR ) {
+		return false;
+	}
+    return true;
+}
