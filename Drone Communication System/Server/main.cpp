@@ -7,6 +7,14 @@
 #include <iostream>
 #include <fstream>
 
+enum class ServerState {
+    ACTIVE,
+    INACTIVE,
+    WAITING_IMAGE,
+    CHATTING,
+    LISTENING
+};
+
 int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket);
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer);
 void mainLoop(bool& connectionPending, bool& listening);
@@ -14,15 +22,30 @@ void mainLoop(bool& connectionPending, bool& listening);
 #define TOWER_ID "AA001"
 #define NOTIFY_CONNECTION_LINE 6
 #define IMAGE_PATH "./Images/received_image_"
+ServerState STATE = ServerState::INACTIVE;
 
 string droneID = "replace_me_droneID";
 string extension = ".jpg";
 
+
+void stateMachine() {
+    while (true) {
+        Server state_machine(TOWER_ID, SERVER_STATE_PORT);
+        state_machine.listenforConnection();
+        state_machine.acceptConnection();
+        MessagePacket* msgPacket = new MessagePacket();
+        msgPacket->setMessage((char*)STATE);
+        state_machine.sendPacket(*msgPacket, state_machine.getClientSockets().back());
+        state_machine.closeLastConnection();
+    }
+}
 void main_program();
 /*
 * Main function to run the server and client
 */
 int main(void) {
+    std::thread state_machine = std::thread([&]() { stateMachine(); }); // Daemon thread to send state to client
+    state_machine.detach();
     main_program();
 
     return 0;
@@ -97,6 +120,7 @@ void main_program() {
 @return void
 */
 void mainLoop(bool& connectionPending, bool& listening) {
+
     // Main server loop to accept connections and handle them
     while (true) {
 

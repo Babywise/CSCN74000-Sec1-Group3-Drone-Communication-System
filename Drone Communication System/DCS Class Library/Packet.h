@@ -9,6 +9,8 @@
 #define LISTEN_PORT 20000
 #define SERVER_PORT 12345
 #define MAX_PACKET_SIZE 79124
+#define SERVER_STATE_PORT 30000
+#define CLIENT_STATE_PORT 40000
 
 using namespace std;
 
