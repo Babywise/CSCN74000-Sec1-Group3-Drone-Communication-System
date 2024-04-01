@@ -156,6 +156,7 @@ void listener(ChatWindow& window, Server& chatClient, SOCKET& clientSocket, stri
 }
 
 int runChatWindow(Server& chatClient, SOCKET& clientSocket) {
+	system("cls");
 	ChatWindow CHAT;
 	CHAT.connect();
 	std::thread t1 = std::thread([&]() { UpdateWindow(CHAT); });
