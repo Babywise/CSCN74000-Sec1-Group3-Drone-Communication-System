@@ -66,6 +66,7 @@ private:
 	std::mutex lock;
 	bool hasUpdate = false;
 	bool termination_pending = false;
+	bool connected = false;
 public:
 	std::string message = "";
 	ChatWindow() {
@@ -119,6 +120,15 @@ public:
 	bool isTerminating() {
 		return termination_pending;
 	}
+	void connect() {
+		connected = true;
+	}
+	void disconnect() {
+		connected = false;
+	}
+	bool isConnected() {
+		return connected;
+	}
 };
 
 void UpdateWindow(ChatWindow& window) {
@@ -132,19 +142,23 @@ void UpdateWindow(ChatWindow& window) {
 
 void listener(ChatWindow& window, Client& chatClient, string& message) {
 
-	while ( (!window.isTerminating() || window.HasUpdate()) && message != "exit" ) {
+	while ( (!window.isTerminating() || window.HasUpdate()) && message != EXIT_COMMAND ) {
 		// if message received
 		chatClient.setTimeout(1);
 		if ( recieveChatMessage(chatClient) ) {
 			window.addChat((char*)DEFAULT_DATE, chatClient.getCurrMessage());
 		}
 		chatClient.clearCurrMessage();
+		if ( message == EXIT_COMMAND && !window.isConnected()) {
+			sendChatMessage(chatClient, "Drone has disconnected");
+		}
 	}
 	Sleep(1000);
 }
 
 int runChatWindow(Client& chatClient) {
 	ChatWindow CHAT;
+	CHAT.connect();
 	std::thread t1 = std::thread([&]() { UpdateWindow(CHAT); });
 	std::thread t2 = std::thread([&]() { listener(CHAT, chatClient, CHAT.message); });
 	std::string message = "";
@@ -158,6 +172,8 @@ int runChatWindow(Client& chatClient) {
 		message += user_character;
 		if ( user_character == ENTER) {
 			if ( message == EXIT_COMMAND) {
+				CHAT.message = message;
+				CHAT.disconnect();
 				CHAT.terminate();
 				break;
 			} else {
