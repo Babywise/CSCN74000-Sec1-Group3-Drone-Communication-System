@@ -2,6 +2,7 @@
 #include "../DCS Class Library/ChatWindowCommunication.h"
 #include "conio.h"
 #include "Server.h"
+#include "ServerRequester.h"
 
 #include <stdlib.h>
 #include <vector>
@@ -52,6 +53,47 @@ bool recieveChatMessage(Server& server, SOCKET& clientSocket) {
 		return false;
 	}
 	return true;
+}
+
+bool sendClientMessage(Client& client, std::string message) {
+	/*
+	* Send message to server
+	*/
+	MessagePacket msgPacket;
+	char messageToSend[MAX_MESSAGE_SIZE] = {};
+	strcpy_s(messageToSend, message.c_str());
+	msgPacket.setMessage(messageToSend);
+
+	PacketManager pM(msgPacket.serialize());
+	Packet* packet = pM.getPacket();
+
+	if ( client.sendPacket(*packet) > 0 ) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool recieveClientMessage(Client& client) {
+
+	char RxBuffer[maxPacketSize] = {};
+
+	int bytesReceived = recv(client.getClientSocket(), RxBuffer, maxPacketSize, 0);
+
+	if ( bytesReceived > 0 ) {
+
+		PacketManager pM(RxBuffer);
+		if ( pM.getPacketType() == PacketType::packetMessage ) {
+			MessagePacket* msgPacket = new MessagePacket(RxBuffer);
+			client.setCurrMessage(msgPacket->getMessage());
+			return true;
+		}
+		return false;
+	} else {
+		return false;
+	}
+	return true;
+
 }
 
 void printToCoordinates(int y, int x, char* text)
