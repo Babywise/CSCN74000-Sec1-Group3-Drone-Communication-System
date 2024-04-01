@@ -30,17 +30,41 @@ ServerState STATE = ServerState::INACTIVE;
 string droneID = "replace_me_droneID";
 string extension = ".jpg";
 
-
 void stateMachine() {
-    while (true) {
+
+    while ( true ) {
         Server state_machine(TOWER_ID, SERVER_STATE_PORT);
         state_machine.listenforConnection();
         state_machine.acceptConnection();
         MessagePacket* msgPacket = new MessagePacket();
-        msgPacket->setMessage((char*)STATE);
-        state_machine.sendPacket(*msgPacket, state_machine.getClientSockets().back());
+        switch ( STATE ) {
+        case ServerState::LISTENING:
+            msgPacket->setMessage((char*)"LISTENING");
+            break;
+        case ServerState::ACTIVE:
+            msgPacket->setMessage((char*)"ACTIVE");
+            break;
+        case ServerState::INACTIVE:
+            msgPacket->setMessage((char*)"INACTIVE");
+            break;
+        case ServerState::WAITING_IMAGE:
+            msgPacket->setMessage((char*)"WAITING_IMAGE");
+            break;
+        case ServerState::CHATTING:
+            msgPacket->setMessage((char*)"CHATTING");
+            break;
+        }
+        sendChatMessage(state_machine, state_machine.getClientSockets().back(), msgPacket->getMessage());
         state_machine.closeLastConnection();
+        state_machine.shutdownServer();
     }
+}
+void getState() {
+    Client state_server(TOWER_ID);
+    state_server.connectToServer(SERVER_IP, CLIENT_STATE_PORT);
+    recieveClientMessage(state_server);
+    std::cout << "State: " << state_server.getCurrMessage() << std::endl;
+    state_server.closeConnection();
 }
 
 void main_program();
@@ -50,6 +74,8 @@ void main_program();
 int main(void) {
     std::thread state_machine = std::thread([&]() { stateMachine(); }); // Daemon thread to send state to client
     state_machine.detach();
+    getState();
+    system("pause");
     main_program();
     return 0;
 }

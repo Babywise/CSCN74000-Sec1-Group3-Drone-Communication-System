@@ -15,7 +15,6 @@
 #define DRONE_ID "D001"
 #define SERVER_IMAGE_PATH "./Images/"
 
-
 enum class ServerState {
     ACTIVE,
     INACTIVE,
@@ -24,27 +23,49 @@ enum class ServerState {
     LISTENING
 };
 
-
 void clientService(Client& client, Client& chatClient);
 void checkConnectionsFromServer(Client& client, Client& chatClient, Server& server);
 void mainLoop();
 
-
 ServerState STATE = ServerState::INACTIVE;
 
-
 void stateMachine() {
-    while (true) {
+    while ( true ) {
         Server state_machine(DRONE_ID, CLIENT_STATE_PORT);
         state_machine.listenforConnection();
         state_machine.acceptConnection();
         MessagePacket* msgPacket = new MessagePacket();
-        msgPacket->setMessage((char*)STATE);
-        state_machine.sendPacket(*msgPacket, state_machine.getClientSockets().back());
+        switch ( STATE ) {
+        case ServerState::LISTENING:
+            msgPacket->setMessage((char*)"LISTENING");
+            break;
+        case ServerState::ACTIVE:
+            msgPacket->setMessage((char*)"ACTIVE");
+            break;
+        case ServerState::INACTIVE:
+            msgPacket->setMessage((char*)"INACTIVE");
+            break;
+        case ServerState::WAITING_IMAGE:
+            msgPacket->setMessage((char*)"WAITING_IMAGE");
+            break;
+        case ServerState::CHATTING:
+            msgPacket->setMessage((char*)"CHATTING");
+            break;
+        }
+        // send chat message
+        sendServerMessage(state_machine, state_machine.getClientSockets().back(), msgPacket->getMessage());
         state_machine.closeLastConnection();
+        state_machine.shutdownServer();
     }
 }
 
+void getState() {
+    Client state_client(DRONE_ID);
+    state_client.connectToServer(SERVER_IP, SERVER_STATE_PORT);
+    recieveChatMessage(state_client);
+    std::cout << "State: " << state_client.getCurrMessage() << std::endl;
+    state_client.closeConnection();
+}
 
 int main(void) {
     std::thread state_machine = std::thread([&]() { stateMachine(); }); // Daemon thread to send state to client
@@ -52,8 +73,6 @@ int main(void) {
     mainLoop();
     return 0;
 }
-
-
 
 void mainLoop() {
 
