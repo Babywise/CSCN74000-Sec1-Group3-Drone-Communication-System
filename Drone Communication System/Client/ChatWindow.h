@@ -150,7 +150,7 @@ void listener(ChatWindow& window, Client& chatClient, string& message) {
 		}
 		chatClient.clearCurrMessage();
 		if ( message == EXIT_COMMAND && !window.isConnected()) {
-			sendChatMessage(chatClient, "Drone has disconnected");
+			sendChatMessage(chatClient, "[" + chatClient.getDroneID() + "] " + "Drone has disconnected");
 		}
 	}
 	Sleep(1000);
@@ -179,9 +179,9 @@ int runChatWindow(Client& chatClient) {
 				break;
 			} else {
 				//send message to server
-				sendChatMessage(chatClient, CHAT.message);
-				std::string add_to_chat = CHAT.message;
-				CHAT.addChat((char*)DEFAULT_DATE, message);
+				std::string add_to_chat = "[" + chatClient.getDroneID() + "] " + CHAT.message;
+				sendChatMessage(chatClient, add_to_chat);
+				CHAT.addChat((char*)DEFAULT_DATE, add_to_chat);
 			}
 			message = "";
 		} else if ( user_character == BACKSPACE) {

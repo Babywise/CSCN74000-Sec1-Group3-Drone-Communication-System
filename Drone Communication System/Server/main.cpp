@@ -11,7 +11,7 @@ int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket);
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer);
 void mainLoop(bool& connectionPending, bool& listening, std::string& command, bool& menuSelected);
 
-#define TOWER_ID "AA001"
+#define TOWER_ID "T001"
 #define NOTIFY_CONNECTION_LINE 6
 #define IMAGE_PATH "./Images/received_image_"
 

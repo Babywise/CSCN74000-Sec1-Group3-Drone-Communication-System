@@ -149,7 +149,7 @@ void listener(ChatWindow& window, Server& chatClient, SOCKET& clientSocket, stri
 		}
 		chatClient.clearCurrMessage();
 		if ( message == EXIT_COMMAND && !window.isConnected() ) {
-			sendChatMessage(chatClient, clientSocket, "Server has disconnected");
+			sendChatMessage(chatClient, clientSocket, "[" + chatClient.getTowerID() + "] " + "Server has disconnected");
 		}
 	}
 	Sleep(1000);
@@ -178,9 +178,9 @@ int runChatWindow(Server& chatClient, SOCKET& clientSocket) {
 				break;
 			} else {
 				//send message to server
-				sendChatMessage(chatClient, clientSocket, CHAT.message);
-				std::string add_to_chat = CHAT.message;
-				CHAT.addChat((char*)DEFAULT_DATE, message);
+				std::string add_to_chat = "[" + chatClient.getTowerID() + "] " + CHAT.message;
+				sendChatMessage(chatClient, clientSocket, add_to_chat);
+				CHAT.addChat((char*)DEFAULT_DATE, add_to_chat);
 			}
 			message = "";
 		} else if ( user_character == BACKSPACE ) {
