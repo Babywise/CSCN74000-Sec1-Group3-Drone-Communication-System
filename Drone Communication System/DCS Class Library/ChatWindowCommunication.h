@@ -1,8 +1,11 @@
 #pragma once
 #include <stdlib.h>
 #include <string>
-#define MAX_MESSAGE_SIZE 256
+#include "Packet.h"
 
+/*
+* Holds a communication object
+*/
 class ChatWindowCommunication {
 
 private:

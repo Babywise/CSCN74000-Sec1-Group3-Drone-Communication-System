@@ -2,53 +2,74 @@
 #include "ChatWindow.h"
 #include "ServerRequester.h"
 #include "ServerMenus.h"
+#include "../DCS Class Library/Packet.h"
+#include <Windows.h>
 
 #include <thread>
 #include <iostream>
 #include <fstream>
+#include <codecvt> 
 
-int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket);
+int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket);
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer);
-void mainLoop(bool& connectionPending, bool& listening);
+void mainLoop(bool& connectionPending, bool& listening, std::string& command, bool& menuSelected);
 
-#define TOWER_ID "AA001"
-#define SERVER_PORT 12345
-#define CHAT_PORT 10000
-#define LISTEN_PORT 20000
+#define TOWER_ID "T001"
+#define NOTIFY_CONNECTION_LINE 6
+#define IMAGE_PATH "./Images/"
 
+string droneID = "replace_me_droneID";
+string extension = ".jpg";
+
+void main_program();
+/*
+* Main function to run the server and client
+*/
 int main(void) {
 
+    main_program();
+    return 0;
+}
+
+void main_program() {
     bool connectionPending = false;
     bool listening = false;
-    std::thread main = std::thread([&]() { mainLoop(connectionPending, listening); });
-    while ( listening == false ) {}   // wait to start listening
-    while ( true ) {
+    std::string command;
+    bool menuSelected = false;
+    std::thread main = std::thread([&]() { mainLoop(connectionPending, listening, command, menuSelected); });
+
+
+    while (listening == false) {}   // wait to start listening
+
+
+    while ( command != "3" ) {
+
         Client client(TOWER_ID);
 
-        std::string command;
-
-        while ( command != "1" && command != "2" && command != "3" ) {
+        while (command != "1" && command != "2" && command != "3") { // user can connect / check, disconnect
 
             serverStartMenu(TOWER_ID);
 
             std::cin >> command;
             int choice = std::stoi(command);
-            if ( choice == 1 ) {
+            menuSelected == true;
+
+            if (choice == 1) {
                 // Connect to the server
                 std::cout << "Waiting...\n";
-                if ( !client.connectToServer("127.0.0.1", LISTEN_PORT) ) {
+                if (!client.connectToServer(SERVER_IP, LISTEN_PORT)) {
                     std::cout << "Server Connection Failed.\n";
                     break;
                 }
 
                 char RxBuffer[maxPacketSize] = {};
-                if ( recv(client.getClientSocket(), RxBuffer, maxPacketSize, 0) <= 0 ) {
+                if (recv(client.getClientSocket(), RxBuffer, maxPacketSize, 0) <= 0) {
                     std::cout << "Response Lost.\n";
                     break;
-                } 
+                }
 
                 PacketManager pM(RxBuffer);
-                if ( pM.getPacketType() == PacketType::packetMessage ) {
+                if (pM.getPacketType() == PacketType::packetMessage) {
                     MessagePacket* msgPacket = new MessagePacket(RxBuffer);
                     client.setCurrMessage(msgPacket->getMessage());
                     std::cout << client.getCurrMessage() << "\n";
@@ -57,36 +78,47 @@ int main(void) {
                 connectionPending = false;
                 main.join();
 
-            } else if ( choice == 2 ) {
-
-                if ( connectionPending == true ) {
+            }
+            else if (choice == 2) {
+                Sleep(1000);
+                if (connectionPending == true) {
                     connectionPending = false;
-                    //use sockets below 
-                    // checkConnectionsFromClient(threads, server, chatServer);
                     main.join();
-                    //Potentially needed
-                    //main = std::thread([&]() { mainLoop(connectionPending, listening); });
                 }
 
-            } else {
+            } else if ( choice == 3 ) {
+                std::cout << "Thank you for using Drone Communication System!\n";
+                Sleep(2000);
+                break;
+            }
+            else {
                 std::cout << "Invalid Option.\n";
             }
         }
 
+        if ( command != "3" ) {
+            command.erase();
+        }
+
         client.closeConnection();
     }
-
-    return 0;
+    main.join();
 }
 
-void mainLoop(bool& connectionPending, bool& listening) {
+/*
+* This function runs a listening socket to listen for connection requests and alert the user when a connection is incoming
+* When the user accepts the connection this function proceeds and handles the connection
+@param connectionPending: bool to check if a connection is pending, listening: bool to check if the server is listening
+@return void
+*/
+void mainLoop(bool& connectionPending, bool& listening, string& command, bool& menuSelected) {
     // Main server loop to accept connections and handle them
-    while (true) {
+    while ( command != "3" ) {
 
         std::system("cls");
 
-        Server server(TOWER_ID, SERVER_PORT);
-        Server chatServer(TOWER_ID, CHAT_PORT);
+        Server server(TOWER_ID, SERVER_PORT); // open tx port
+        Server chatServer(TOWER_ID, CHAT_PORT); // open rx port
 
         if ( !server.listenforConnection() ) {
             std::cout << "Server Listening Failed.\n";
@@ -100,48 +132,84 @@ void mainLoop(bool& connectionPending, bool& listening) {
         std::cout << "Listening for connections...\n";
 
         std::vector<std::thread> threads;
-        listening = true;
+        listening = true; // inform main loop we are listening
+        bool continueProgram = true;
 
-        if ( !server.acceptConnection() ) {
-            std::cout << "Accepting Server Connection Failed.\n";
-            break;
-        }
-        if ( !chatServer.acceptConnection() ) {
-            std::cout << "Accepting Chat Server Connection Failed.\n";
-            break;
-        }
 
-        connectionPending = true;
-        listening = false;
-        while ( connectionPending != false ) {
-            printToCoordinates(6 /*replace with non magic number (screen position)*/, 0, (char*)"Connection incoming... (10)");
+        while ( menuSelected != true) {
+            if ( command == "3" ) {
+                continueProgram = false;
+                break;
+            } else if ( command == "1" || command == "2" ) {
+                continueProgram = true;
+                break;
+            }
         }
+        if ( continueProgram ) {
+            if ( !server.acceptConnection() ) {
+                std::cout << "Accepting Server Connection Failed.\n";
+                break;
+            }
+            if ( !chatServer.acceptConnection() ) {
+                std::cout << "Accepting Chat Server Connection Failed.\n";
+                break;
+            }
 
-        //Potentially move this to main
-        checkConnectionsFromClient(threads, server, chatServer);
+            connectionPending = true; // Connection was made so inform main loop that a connection is pending
+            listening = false; // The server is no longer listening since the sockets are used
+            while ( connectionPending != false ) { // until user accepts connection
+                printToCoordinates(NOTIFY_CONNECTION_LINE, 0, (char*)"Connection incoming... (10)");
+            }
+
+            //Potentially move this to main
+            checkConnectionsFromClient(threads, server, chatServer);
+        }
+        
+        //needs work may need to spawn a new thread or something
+        if ( command != "3" ) {
+            menuSelected = false;
+            command.erase();
+        }
 
         server.shutdownServer();
         chatServer.shutdownServer();
     }
 }
 
-bool receiveImage(Server& chatServer, SOCKET& clientChatSocket) {
+/*
+* This function is used to recieve an image from the client
+@param clientChatSocket: socket to handle image communication
+@return bool
+*/
+bool receiveImage( SOCKET& clientChatSocket) {
+
     while (true) {
+
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+        if ( CreateDirectoryW(converter.from_bytes(IMAGE_PATH).c_str(), NULL) ||
+            GetLastError() == ERROR_ALREADY_EXISTS ) {
+            std::cout << "Folder exists or was created successfully." << std::endl;
+        } else {
+            std::cout << "Failed to create folder." << std::endl;
+        }
+
         int imageSize;
         int recvResult = recv(clientChatSocket, reinterpret_cast<char*>(&imageSize), sizeof(imageSize), 0);
+
         if (recvResult <= 0 || imageSize == -1) {
             std::cout << "No more images to receive or connection closed by client.\n";
             break;
         }
 
-        std::string filename = "./Images/received_image_" + std::to_string(time(nullptr)) + ".jpg";
+        std::string filename = IMAGE_PATH + string("received_image_") + std::to_string(time(nullptr)) + extension;
         std::ofstream outFile(filename, std::ios::binary);
         if (!outFile) {
             std::cerr << "Failed to create file\n";
             break;
         }
 
-        char buffer[1024];
+        char buffer[MAX_MESSAGE_SIZE];
         int totalBytesReceived = 0;
         while (totalBytesReceived < imageSize) {
             int bytesRead = recv(clientChatSocket, buffer, sizeof(buffer), 0);
@@ -165,15 +233,21 @@ bool receiveImage(Server& chatServer, SOCKET& clientChatSocket) {
     return true;
 }
 
-
-int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCKET& clientChatSocket) {
+/*
+* This function is used to handle the main menu once the client has connected to the server
+@param: server: server object to handle server connections, chatServer: server object to handle chat communication, clientChatSocket: socket to handle chat communication
+@return int
+*/
+int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket) {
 
     //get and set drone id
     //->
-    server.setDroneID("replace_me_droneID");
-    while ( true ) {
+    server.setDroneID(droneID);
+    bool running = true;
 
-        serverDroneMenu(server.getTowerID(), server.getDroneID());
+    while ( running ) {
+
+        serverDroneMenu(server.getTowerID(), server.getDroneID()); // Print Menu
 
         std::string command;
         std::cin >> command;
@@ -182,23 +256,34 @@ int clientService(Server& server, SOCKET& clientSocket, Server& chatServer, SOCK
 
         switch ( choice ) {
         case 1:
-            runChatWindow(chatServer, clientChatSocket);
+            runChatWindow(chatServer, clientChatSocket); // run chat window
             break;
         case 2:
-            receiveImage(chatServer, clientChatSocket);
+            receiveImage(clientChatSocket); // Request image
+        case 3:
+            std::cout << "GoodBye!" << std::endl;
+            running = false;
+            break;
         default:
             std::cout << "No Option Selected.\n";
             break;
         }
+        
     }
     return 1;
 }
 
+/*
+* This function is used to check on a connection request from a client and allow the user to accept or reject the connection
+* Push a new thread to the vector of threads to handle the connection then join the thread if connection is accepted
+@param threads: vector of threads to store the threads created, server: server object to handle server connections, chatServer: server object to handle chat server connections
+@return void
+*/
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer) {
 
     std::string command;
 
-    while ( command != "1" && command != "2" ) {
+    while ( command != "1" && command != "2" ) { // Accept or Reject
 
         serverConnectionMenu();
 
@@ -213,9 +298,10 @@ void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& serve
                 std::cout << "Closing Chat Server Connection Failed.\n";
                 break;
             }
+            // Send to client to let them know they were rejected
             return;
-        } else if ( choice == 1 ) {
-            threads.push_back(std::thread([&]() { clientService(server, server.getClientSockets().back(), chatServer, chatServer.getClientSockets().back()); }));
+        } else if ( choice == 1 ) { // Handle connection with clientService.
+            threads.push_back(std::thread([&]() { clientService(server, chatServer, chatServer.getClientSockets().back()); }));
             threads.back().join();
             std::cout << "Thread created\n";
         }
