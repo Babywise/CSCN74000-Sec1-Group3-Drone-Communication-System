@@ -15,6 +15,7 @@
 #define CHECK_INTERVAL 100
 #define EXIT_COMMAND "exit\r"
 
+// Function to send a message from the client
 bool sendChatMessage(Client& client, std::string message) {
 	/*
 	* Send message to server
@@ -34,6 +35,7 @@ bool sendChatMessage(Client& client, std::string message) {
 	}
 }
 
+// Function to recieve a message from the server
 bool recieveChatMessage(Client& client) {
 
 	char RxBuffer[maxPacketSize] = {};
@@ -56,6 +58,7 @@ bool recieveChatMessage(Client& client) {
 
 }
 
+// Function to send a message from the server
 bool sendServerMessage(Server& server, SOCKET& clientSocket, std::string message) {
 
 	MessagePacket msgPacket;
@@ -73,6 +76,7 @@ bool sendServerMessage(Server& server, SOCKET& clientSocket, std::string message
 	}
 }
 
+// Function to recieve a message from the client
 bool recieveServerMessage(Server& server, SOCKET& clientSocket) {
 
 	char RxBuffer[maxPacketSize] = {};
@@ -94,7 +98,7 @@ bool recieveServerMessage(Server& server, SOCKET& clientSocket) {
 	return true;
 }
 
-
+// Function to print to a specific coordinate on the screen
 void printToCoordinates(int y, int x, char* text)
 {
 	printf("\033[%d;%dH%s", y, x, text);
@@ -185,10 +189,12 @@ void listener(ChatWindow& window, Client& chatClient, string& message) {
 	while ( (!window.isTerminating() || window.HasUpdate()) && message != EXIT_COMMAND ) {
 		// if message received
 		chatClient.setTimeout(1);
+		// wait for message
 		if ( recieveChatMessage(chatClient) ) {
 			window.addChat((char*)DEFAULT_DATE, chatClient.getCurrMessage());
 		}
 		chatClient.clearCurrMessage();
+		// if message is exit command and server is disconnected
 		if ( message == EXIT_COMMAND && !window.isConnected()) {
 			sendChatMessage(chatClient, "[" + chatClient.getDroneID() + "] " + "Drone has disconnected");
 		}

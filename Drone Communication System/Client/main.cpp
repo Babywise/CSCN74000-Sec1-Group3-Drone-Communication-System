@@ -26,6 +26,9 @@ enum class ServerState {
 void clientService(Client& client, Client& chatClient);
 void checkConnectionsFromServer(Client& client, Client& chatClient, Server& server);
 void mainLoop();
+bool sendImage(Client& chatClient);
+void getState();
+void stateMachine();
 
 ServerState STATE = ServerState::INACTIVE;
 
@@ -80,9 +83,7 @@ void mainLoop() {
 
     while ( command != "3" ) {
 
-
         std::system("cls");
-        // Create a client object
         Client client(DRONE_ID);
         Client chatClient(DRONE_ID);
         Server server(DRONE_ID, LISTEN_PORT);
@@ -94,14 +95,16 @@ void mainLoop() {
 
         std::cout << "Listening for connections...\n";
 
+        // Main menu
         while (command != "1" && command != "2" && command != "3") {
 
             clientStartMenu(DRONE_ID);
 
             std::cin >> command;
             int choice = std::stoi(command);
-            if (choice == 1) { // connect
-                // Connect to the server
+
+            // Connect to the server
+            if (choice == 1) {
                 std::cout << "Waiting...\n";
                 if (!client.connectToServer(SERVER_IP, CLIENT_PORT)) {
                     std::cout << "Server Connection Failed.\n";
@@ -113,22 +116,30 @@ void mainLoop() {
                     break;
                 }
 
-                clientService(client, chatClient); // main loop
+                // main loop
+                clientService(client, chatClient);
 
-            } else if (choice == 2) { // Check Connections
+            // Check Connections
+            } else if (choice == 2) {
                 checkConnectionsFromServer(client, chatClient, server);
+            // Exit
             } else if ( choice == 3 ) {
                 std::cout << "Thank you for using Drone Communication System!\n";
                 Sleep(2000);
                 break;
+            // Invalid option
             } else {
                 std::cout << "Invalid Option.\n";
             }
             
         }
+
+        // Reset menu option
         if ( command != "3" ) {
             command.erase();
         }
+
+        // Close connections
         client.closeConnection();
         chatClient.closeConnection();
         server.shutdownServer();
@@ -143,7 +154,8 @@ void mainLoop() {
 bool sendImage(Client& chatClient) {
 
     std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
-
+    
+    //check if image directory exists
     if ( CreateDirectoryW(converter.from_bytes(SERVER_IMAGE_PATH).c_str(), NULL) ||
         GetLastError() == ERROR_ALREADY_EXISTS ) {
         std::cout << "Folder exists or was created successfully." << std::endl;
@@ -154,7 +166,8 @@ bool sendImage(Client& chatClient) {
     std::queue<std::string> imageQueue;
     std::string filename;
 
-    while (true) { // Get list of files to transmit
+    // Get list of files to transmit
+    while (true) { 
         std::cout << "Enter the name of the image file to send (or 'done' to finish): ";
         std::cin >> filename;
         if (filename == "done") {
@@ -163,7 +176,8 @@ bool sendImage(Client& chatClient) {
         imageQueue.push(filename);
     }
 
-    while (!imageQueue.empty()) { // transmit all images
+    // transmit all images
+    while (!imageQueue.empty()) { 
         std::string filename = imageQueue.front();
         imageQueue.pop();
         std::string filepath = SERVER_IMAGE_PATH + filename;
@@ -175,6 +189,7 @@ bool sendImage(Client& chatClient) {
             continue;
         }
 
+        // Get image information
         std::string imageData((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
         int imageSize = imageData.size();
         std::cout << "Sending image size: " << imageSize << " bytes\n";
@@ -182,7 +197,8 @@ bool sendImage(Client& chatClient) {
 
         int totalBytesSent = 0;
         int packetSize = MAX_MESSAGE_SIZE;
-        while (totalBytesSent < imageSize) { // send image
+        // Send image data
+        while (totalBytesSent < imageSize) {
             int bytesToSend = std::min<int>(packetSize, imageSize - totalBytesSent);
             int bytesSent = send(chatClient.getClientSocket(), imageData.data() + totalBytesSent, bytesToSend, 0);
             if (bytesSent == SOCKET_ERROR) {
@@ -228,22 +244,27 @@ void clientService(Client& client, Client& chatClient) {
 
     while ( running ) {
 
+        // Print Menu
         clientDroneMenu(client.getDroneID(), client.getTowerID());
 
         std::string command;
         std::cin >> command;
         int choice = std::stoi(command);
         switch ( choice ) {
+        // run chat window
         case 1:
-            runChatWindow(chatClient); // chat window
+            runChatWindow(chatClient);
             break;
+        // Send images
         case 2:
-            std::cout << "ImageStatus: " << sendImage(chatClient) << std::endl; // image sending
+            std::cout << "ImageStatus: " << sendImage(chatClient) << std::endl;
             break;
+        // Exit chat
         case 3:
             std::cout << "GoodBye!" << std::endl;
             running = false;
             break;
+        // No valid option selected
         default:
             std::cout << "No Option Selected.\n";
             break;
@@ -262,22 +283,27 @@ void checkConnectionsFromServer(Client& client, Client& chatClient, Server& serv
 
     while ( command != "1" && command != "2" ) {
 
+        // Print Menu
         clientConnectionMenu();
 
         std::cin >> command;
         int choice = std::stoi(command);
+        // Regret Connection
         if ( choice == 2 ) {
             if ( !server.closeLastConnection() ) {
                 std::cout << "Closing Server Connection Failed.\n";
                 break;
             }
             continue;
+        // Accept Connection
         } else if ( choice == 1 ) {
             if ( !server.acceptConnection() ) {
                 std::cout << "Accepting Server Connection Failed.\n";
                 break;
             } else {
                 std::cout << "Server Connection (SUCCESS).\n";
+
+                // Creat and Send message to server
                 std::string message = DRONE_ID + string("| Accepted Your Connection");
                 MessagePacket msgPacket;
                 char messageToSend[MAX_MESSAGE_SIZE] = {};

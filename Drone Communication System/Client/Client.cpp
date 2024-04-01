@@ -36,13 +36,6 @@ bool Client::connectToServer(const std::string& ipAddress, int port)
     }
 }
 
-int Client::sendPacket(Packet& packet)
-{
-    int sendResult = send(clientSocket, packet.serialize(), maxPacketSize, 0);
-
-    return sendResult;
-}
-
 bool Client::closeConnection()
 {
     // Close server socket once server is done
@@ -52,6 +45,13 @@ bool Client::closeConnection()
     } else {
         return false;
     }
+}
+
+int Client::sendPacket(Packet& packet)
+{
+    int sendResult = send(clientSocket, packet.serialize(), maxPacketSize, 0);
+
+    return sendResult;
 }
 
 SOCKET Client::getClientSocket()

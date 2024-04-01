@@ -7,21 +7,25 @@ class PacketManager {
 	PacketType pType;
 public:
 
+	// Handle Packet using univeral manager
 	PacketManager(char* buffer) {
 		Packet* p = new Packet(buffer);
 		this->pType = p->getPacketType();
 		this->packet = this->setupPacket(buffer);
 	}
 
+	// Get Packet
 	Packet* getPacket() {
 		return this->packet;
 	}
 
+	// Get Packet Type
 	PacketType getPacketType() {
 		return this->pType;
 	}
 
 private:
+	// Setup Packet
 	Packet* setupPacket(char* buffer) {
 
 		switch ( this->pType )
