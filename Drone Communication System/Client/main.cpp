@@ -4,15 +4,16 @@
 #include "ChatWindow.h"
 #include "ClientListeningServer.h"
 #include "ClientMenus.h"
+#include <Windows.h>
+
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <queue>
+#include <codecvt>
 
 #define DRONE_ID "D001"
 #define SERVER_IMAGE_PATH "./Images/"
-
-
 
 void clientService(Client& client, Client& chatClient);
 void checkConnectionsFromServer(Client& client, Client& chatClient, Server& server);
@@ -88,7 +89,15 @@ void mainLoop() {
 */
 bool sendImage(Client& chatClient) {
 
-    
+    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+    if ( CreateDirectoryW(converter.from_bytes(SERVER_IMAGE_PATH).c_str(), NULL) ||
+        GetLastError() == ERROR_ALREADY_EXISTS ) {
+        std::cout << "Folder exists or was created successfully." << std::endl;
+    } else {
+        std::cout << "Failed to create folder." << std::endl;
+    }
+
     std::queue<std::string> imageQueue;
     std::string filename;
 

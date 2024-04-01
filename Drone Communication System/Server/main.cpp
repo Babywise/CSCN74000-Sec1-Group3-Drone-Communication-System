@@ -3,9 +3,12 @@
 #include "ServerRequester.h"
 #include "ServerMenus.h"
 #include "../DCS Class Library/Packet.h"
+#include <Windows.h>
+
 #include <thread>
 #include <iostream>
 #include <fstream>
+#include <codecvt> 
 
 int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket);
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer);
@@ -13,7 +16,7 @@ void mainLoop(bool& connectionPending, bool& listening, std::string& command, bo
 
 #define TOWER_ID "T001"
 #define NOTIFY_CONNECTION_LINE 6
-#define IMAGE_PATH "./Images/received_image_"
+#define IMAGE_PATH "./Images/"
 
 string droneID = "replace_me_droneID";
 string extension = ".jpg";
@@ -182,6 +185,15 @@ bool receiveImage( SOCKET& clientChatSocket) {
 
     while (true) {
 
+        std::wstring_convert<std::codecvt_utf8_utf16<wchar_t>> converter;
+
+        if ( CreateDirectoryW(converter.from_bytes(IMAGE_PATH).c_str(), NULL) ||
+            GetLastError() == ERROR_ALREADY_EXISTS ) {
+            std::cout << "Folder exists or was created successfully." << std::endl;
+        } else {
+            std::cout << "Failed to create folder." << std::endl;
+        }
+
         int imageSize;
         int recvResult = recv(clientChatSocket, reinterpret_cast<char*>(&imageSize), sizeof(imageSize), 0);
 
@@ -190,7 +202,7 @@ bool receiveImage( SOCKET& clientChatSocket) {
             break;
         }
 
-        std::string filename = IMAGE_PATH + std::to_string(time(nullptr)) + extension;
+        std::string filename = IMAGE_PATH + string("received_image_") + std::to_string(time(nullptr)) + extension;
         std::ofstream outFile(filename, std::ios::binary);
         if (!outFile) {
             std::cerr << "Failed to create file\n";
