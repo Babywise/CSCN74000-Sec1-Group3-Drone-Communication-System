@@ -23,7 +23,7 @@ bool sendChatMessage(Server& server, SOCKET& clientSocket, std::string message) 
 	char messageToSend[MAX_MESSAGE_SIZE] = {};
 	strcpy_s(messageToSend, message.c_str());
 	msgPacket.setMessage(messageToSend);
-
+	msgPacket.setCurrDate();
 	PacketManager pM(msgPacket.serialize());
 	Packet* packet = pM.getPacket();
 
@@ -192,7 +192,7 @@ void listener(ChatWindow& window, Server& chatClient, SOCKET& clientSocket, stri
 		chatClient.setTimeout(clientSocket, 1);
 		// wait for message
 		if ( recieveChatMessage(chatClient, clientSocket) ) {
-			window.addChat((char*)chatClient.getCurrDate().c_str(), chatClient.getCurrMessage());
+			window.addChat((char*)"", chatClient.getCurrMessage());
 		}
 		chatClient.clearCurrMessage();
 		// if message is exit command and drone is disconnected
@@ -228,7 +228,7 @@ int runChatWindow(Server& chatClient, SOCKET& clientSocket) {
 				//send message to client
 				std::string add_to_chat = "[" + chatClient.getTowerID() + "] " + CHAT.message;
 				sendChatMessage(chatClient, clientSocket, add_to_chat);
-				CHAT.addChat((char*)chatClient.getCurrDate().c_str(), add_to_chat);
+				CHAT.addChat((char*)chatClient.getCurrDate().c_str(), " - " + add_to_chat);
 			}
 			message = "";
 		} else if ( user_character == BACKSPACE ) {
@@ -239,7 +239,7 @@ int runChatWindow(Server& chatClient, SOCKET& clientSocket) {
 		}
 		CHAT.message = message;
 	}
-	CHAT.addChat((char*)chatClient.getCurrDate().c_str(), (char*)"Goodbye!");
+	CHAT.addChat((char*)chatClient.getCurrDate().c_str(),(char*)"Goodbye!");
 	t1.join();
 	t2.join();
 	return 0;

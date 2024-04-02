@@ -192,7 +192,7 @@ void listener(ChatWindow& window, Client& chatClient, string& message) {
 		chatClient.setTimeout(1);
 		// wait for message
 		if ( recieveChatMessage(chatClient) ) {
-			window.addChat((char*)chatClient.getCurrDate().c_str(), chatClient.getCurrMessage());
+			window.addChat((char*)"", chatClient.getCurrMessage());
 		}
 		chatClient.clearCurrMessage();
 		// if message is exit command and server is disconnected
@@ -228,7 +228,7 @@ int runChatWindow(Client& chatClient) {
 				//send message to server
 				std::string add_to_chat = "[" + chatClient.getDroneID() + "] " + CHAT.message;
 				sendChatMessage(chatClient, add_to_chat);
-				CHAT.addChat((char*)chatClient.getCurrDate().c_str(), add_to_chat);
+				CHAT.addChat((char*)chatClient.getCurrDate().c_str()," - "+ add_to_chat);
 			}
 			message = "";
 		} else if ( user_character == BACKSPACE) {
