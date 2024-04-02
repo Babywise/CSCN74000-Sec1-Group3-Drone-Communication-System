@@ -195,7 +195,7 @@ void listener(ChatWindow& window, Client& chatClient, string& message) {
 		}
 		chatClient.clearCurrMessage();
 		// if message is exit command and server is disconnected
-		if ( message == EXIT_COMMAND && !window.isConnected()) {
+		if ( message == EXIT_COMMAND && window.isConnected()) {
 			sendChatMessage(chatClient, "[" + chatClient.getDroneID() + "] " + "Drone has disconnected");
 		}
 	}

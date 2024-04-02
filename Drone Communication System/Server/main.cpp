@@ -77,8 +77,8 @@ void getState() {
 int main(void) {
     std::thread state_machine = std::thread([&]() { stateMachine(); }); // Daemon thread to send state to client
     state_machine.detach();
-    getState();
-    system("pause");
+    //getState();
+    //system("pause");
     main_program();
     return 0;
 }
@@ -237,9 +237,9 @@ void mainLoop(bool& connectionPending, bool& listening, string& command, bool& m
             menuSelected = false;
             command.erase();
             // Close server sockets
-            server.shutdownServer();
-            chatServer.shutdownServer();
-            main_program();
+            //server.shutdownServer();
+            //chatServer.shutdownServer();
+           // main_program();
         }
 
         // Close server sockets
@@ -333,20 +333,20 @@ int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket) 
         int choice = std::stoi(command);
 
         switch (choice) {
-            // run chat window
+        // run chat window
         case 1:
             runChatWindow(chatServer, clientChatSocket);
             break;
-            // Request images
+        // Request images
         case 2:
             receiveImage(clientChatSocket);
             break;
-            // Exit chat
+        // Exit chat
         case 3:
             std::cout << "GoodBye!" << std::endl;
             running = false;
             break;
-            // No valid option selected
+        // No valid option selected
         default:
             std::cout << "No Option Selected.\n";
             break;
@@ -367,7 +367,7 @@ void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& serve
 
     std::string command;
 
-    while (command != "1" && command != "2") { // Accept or Reject
+    while ( command != "1" && command != "2" ) { // Accept or Reject
 
         // Print Menu
         serverConnectionMenu();

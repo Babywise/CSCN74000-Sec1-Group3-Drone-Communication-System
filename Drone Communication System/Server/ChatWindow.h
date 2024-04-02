@@ -196,7 +196,7 @@ void listener(ChatWindow& window, Server& chatClient, SOCKET& clientSocket, stri
 		}
 		chatClient.clearCurrMessage();
 		// if message is exit command and drone is disconnected
-		if ( message == EXIT_COMMAND && !window.isConnected() ) {
+		if ( message == EXIT_COMMAND && window.isConnected() ) {
 			sendChatMessage(chatClient, clientSocket, "[" + chatClient.getTowerID() + "] " + "Server has disconnected");
 		}
 	}
