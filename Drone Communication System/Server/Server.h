@@ -5,7 +5,7 @@
 *
 * File: server.h
 *
-* Description:
+* Description: Contains the server class for the server module
 *
 * Authors : Islam Ahmed
 */

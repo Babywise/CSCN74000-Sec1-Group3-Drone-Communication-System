@@ -5,7 +5,7 @@
 *
 * File: Logger.h
 *
-* Description:
+* Description: Contains the Logger class for the DCS Class Library
 *
 * Authors : Danny Smith
 */

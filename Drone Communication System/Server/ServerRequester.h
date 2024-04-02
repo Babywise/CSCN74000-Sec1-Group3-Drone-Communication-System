@@ -5,7 +5,7 @@
 *
 * File: ServerRequester.h
 *
-* Description: 
+* Description: Contains the ServerRequester class for the server module
 *
 * Authors : Islam Ahmed
 */

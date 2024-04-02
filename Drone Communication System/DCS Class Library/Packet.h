@@ -5,7 +5,7 @@
 *
 * File: Packet.h
 *
-* Description:
+* Description: Contains the Packet class for the DCS Class Library
 *
 * Authors : Islam Ahmed
 */

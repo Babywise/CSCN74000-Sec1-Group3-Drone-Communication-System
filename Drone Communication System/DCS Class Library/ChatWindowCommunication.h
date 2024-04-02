@@ -5,7 +5,7 @@
 *
 * File: ChatWindowCommunication.h
 *
-* Description:
+* Description: Contains the ChatWindowCommunication class for the DCS Class Library
 *
 * Authors :
 */

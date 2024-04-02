@@ -5,7 +5,7 @@
 *
 * File: Chat Window.h
 *
-* Description:
+* Description: Contains the Chat Window class for the server module
 *
 * Authors : Danny Smith
 */

@@ -5,7 +5,7 @@
 *
 * File: MessagePacket.h
 *
-* Description:
+* Description: Contains the MessagePacket class for the DCS Class Library
 *
 * Authors : Islam Ahmed
 */

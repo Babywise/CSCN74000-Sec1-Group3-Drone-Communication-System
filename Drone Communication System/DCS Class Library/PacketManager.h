@@ -5,7 +5,7 @@
 *
 * File: PacketManager.h
 *
-* Description: 
+* Description: Contains the PacketManager class for the DCS Class Library
 *
 * Authors : Islam Ahmed
 * 
