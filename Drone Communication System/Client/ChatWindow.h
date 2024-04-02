@@ -1,3 +1,15 @@
+/*
+* Project: Next Level Drone Systems
+* Module: Client
+* Language: C++
+*
+* File: ChatWindow.h
+*
+* Description: Contains the chat window class and functions for the client
+* To display the chat window and send and recieve messages gui style
+*
+* Authors : Danny Smith
+*/
 #pragma once
 #include "../DCS Class Library/ChatWindowCommunication.h"
 #include "conio.h"

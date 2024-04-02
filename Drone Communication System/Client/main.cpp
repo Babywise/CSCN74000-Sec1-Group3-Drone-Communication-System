@@ -1,20 +1,41 @@
+/*
+* Project: Next Level Drone Systems
+* Module: Client
+* Language: C++
+*
+* File:[Client] - main.cpp
+*
+* Description: 
+*
+* Authors :
+*         1. Islam Ahmed
+*         2. Danny Smith
+*         3. Nicholas Prince
+*/
+
+//Include Local Libraries
 #include "../DCS Class Library/Packet.h"
 #include "../DCS Class Library/MessagePacket.h"
 #include "Client.h"
 #include "ChatWindow.h"
 #include "ClientListeningServer.h"
 #include "ClientMenus.h"
-#include <Windows.h>
+// End Include Local Libraries
 
+// Include
+#include <Windows.h>
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <queue>
 #include <codecvt>
+// End Include
 
+//Define
 #define DRONE_ID "D001"
 #define SERVER_IMAGE_PATH "./Images/"
 
+//Enums
 enum class ServerState {
     ACTIVE,
     INACTIVE,
@@ -23,15 +44,20 @@ enum class ServerState {
     LISTENING
 };
 
+//Declarations
 void clientService(Client& client, Client& chatClient);
 void checkConnectionsFromServer(Client& client, Client& chatClient, Server& server);
 void mainLoop();
 bool sendImage(Client& chatClient);
 void getState();
 void stateMachine();
-
 ServerState STATE = ServerState::INACTIVE;
+// End Declarations
 
+/*
+* Runs as a daemon thread to send the state of the drone to the client
+* When the drone connects and then closes the socket
+*/
 void stateMachine() {
     while ( true ) {
         Server state_machine(DRONE_ID, CLIENT_STATE_PORT);
@@ -61,7 +87,9 @@ void stateMachine() {
         state_machine.shutdownServer();
     }
 }
-
+/*
+* Connects to the client state machine to get the state and returns it.
+*/
 void getState() {
     Client state_client(DRONE_ID);
     state_client.connectToServer(SERVER_IP, SERVER_STATE_PORT);
@@ -70,18 +98,21 @@ void getState() {
     state_client.closeConnection();
 }
 
+/*
+* Main function to run the client
+*/
 int main(void) {
     std::thread state_machine = std::thread([&]() { stateMachine(); }); // Daemon thread to send state to client
     state_machine.detach();
     mainLoop();
     return 0;
 }
-
+ // Runs the client connection program until the user exits
 void mainLoop() {
 
     std::string command;
 
-    while ( command != "3" ) {
+    while ( command != "3" ) { // while user not exited
 
         std::system("cls");
         Client client(DRONE_ID);
@@ -117,11 +148,11 @@ void mainLoop() {
                 }
 
                 // main loop
-                clientService(client, chatClient);
+                clientService(client, chatClient); // Runs the connected interface
 
             // Check Connections
             } else if (choice == 2) {
-                checkConnectionsFromServer(client, chatClient, server);
+                checkConnectionsFromServer(client, chatClient, server); // check for active connections and run client service if one is accepted
             // Exit
             } else if ( choice == 3 ) {
                 std::cout << "Thank you for using Drone Communication System!\n";

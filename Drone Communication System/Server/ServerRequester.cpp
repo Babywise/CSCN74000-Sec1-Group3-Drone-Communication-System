@@ -1,3 +1,16 @@
+/*
+* Project: Next Level Drone Systems
+* Module: server
+* Language: C++
+*
+* File: ServerRequester.cpp
+*
+* Description: Runs server code on the server for tx communication with the client
+* during the chat window
+*
+* Authors : Islam Ahmed
+*/
+
 #include "ServerRequester.h"
 
 Client::Client(std::string droneID) : droneID(droneID), towerID("replace_me Twr ID"), currMessage(),currDate(), wsaData(), clientSocket(), serverAddress()

@@ -5,6 +5,7 @@
 
 /*
 * Holds a communication object
+* Includes the message, date, sender id, and receiver id
 */
 class ChatWindowCommunication {
 
@@ -18,6 +19,8 @@ private:
 public:
 	ChatWindowCommunication() : message(), date(), sender_id(0), receiver_id(0) {
 	}
+
+
 	//setters
 	void setMessage(std::string message) {
 		time_t now = time(0);
@@ -33,10 +36,11 @@ public:
 		this->receiver_id = receiver_id;
 	}
 
+	//getters
 	string getDate() {
 		return this->date;
-	}	
-	//getters
+	}
+
 	std::string getMessage() {
 		return message;
 	}

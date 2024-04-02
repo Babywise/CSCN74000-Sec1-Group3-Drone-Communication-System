@@ -1,3 +1,14 @@
+/*
+* Project: Next Level Drone Systems
+* Module: client
+* Language: C++
+*
+* File: ClientListeningServer.h
+*
+* Description: Runs server code on the client to listen for client connections
+*
+* Authors : Islam Ahmed
+*/
 #pragma once
 #pragma comment(lib, "ws2_32.lib")
 #include "../DCS Class Library/Packet.h"
@@ -7,8 +18,13 @@
 #include <iostream>
 #include <vector>
 
-
+/*
+* Server class for listening and handling client connections
+* @param towerID - the client drone id
+* @param port - the port number to listen on
+*/
 class Server {
+    // Variables
     std::string towerID = {};
     std::string droneID = {};
     WSADATA wsaData = {};

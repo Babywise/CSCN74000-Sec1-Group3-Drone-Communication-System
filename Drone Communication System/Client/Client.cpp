@@ -1,6 +1,18 @@
+/*
+* Project: Next Level Drone Systems
+* Module: Client
+* Language: C++
+*
+* File:[Client] - main.cpp
+*
+* Description:
+*
+* Authors :
+*         1. Islam Ahmed
+*/
 #include "Client.h"
 
-Client::Client(std::string droneID) : droneID(droneID), towerID("replace_me Twr ID"), currMessage(), wsaData(), clientSocket(), serverAddress()
+Client::Client(std::string droneID) : droneID(droneID), towerID("AA001"), currMessage(), wsaData(), clientSocket(), serverAddress()
 {
     // Initialize Winsock
     if ( WSAStartup(MAKEWORD(2, 2), &wsaData) != 0 ) {
@@ -46,7 +58,7 @@ bool Client::closeConnection()
         return false;
     }
 }
-
+/* Serializes and sends a packet ADT*/
 int Client::sendPacket(Packet& packet)
 {
     int sendResult = send(clientSocket, packet.serialize(), maxPacketSize, 0);
@@ -54,6 +66,40 @@ int Client::sendPacket(Packet& packet)
     return sendResult;
 }
 
+// Setters
+void Client::setCurrDate(std::string date)
+{
+    	this->currDate = date;
+}   
+void Client::setCurrMessage(std::string message)
+{
+    time_t now = time(0);
+    tm* ltm = localtime(&now);
+    std::string timeString = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday) + " " + to_string(ltm->tm_hour) + ":" + to_string(ltm->tm_min) + ":" + to_string(ltm->tm_sec);
+    this->currDate = timeString;
+    this->currMessage = message;
+}
+
+void Client::clearCurrMessage()
+{
+    this->currMessage.erase();
+}
+
+bool Client::setTimeout(int duration)
+{
+    if (setsockopt(clientSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&duration, sizeof(duration)) == SOCKET_ERROR) {
+        return false;
+    }
+    return true;
+}
+//End Setters
+
+
+// Getters
+std::string Client::getCurrDate()
+{
+	return this->currDate;
+}   
 SOCKET Client::getClientSocket()
 {
     return clientSocket;
@@ -73,33 +119,4 @@ std::string Client::getCurrMessage()
 {
     return currMessage;
 }
-void Client::setCurrDate(std::string date)
-{
-    	this->currDate = date;
-}   
-
-std::string Client::getCurrDate()
-{
-	return this->currDate;
-}   
-void Client::setCurrMessage(std::string message)
-{
-    time_t now = time(0);  
-    tm* ltm = localtime(&now);
-    std::string timeString = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday) + " " + to_string(ltm->tm_hour) + ":" + to_string(ltm->tm_min) + ":" + to_string(ltm->tm_sec);
-    this->currDate= timeString;
-	this->currMessage = message;
-}
-
-void Client::clearCurrMessage()
-{
-	this->currMessage.erase();
-}
-
-bool Client::setTimeout(int duration)
-{
-    if ( setsockopt(clientSocket, SOL_SOCKET, SO_RCVTIMEO, (const char*)&duration, sizeof(duration)) == SOCKET_ERROR ) {
-		return false;
-	}
-    return true;
-}
+// End Getters

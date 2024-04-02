@@ -78,6 +78,7 @@ int main(void) {
     std::thread state_machine = std::thread([&]() { stateMachine(); }); // Daemon thread to send state to client
     state_machine.detach();
     getState();
+    
     system("pause");
     main_program();
     return 0;

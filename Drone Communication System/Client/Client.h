@@ -1,3 +1,14 @@
+/*
+* Project: Next Level Drone Systems
+* Module: Client
+* Language: C++
+*
+* File: client.h
+*
+* Description: Contains the client class for the client module
+*
+* Authors : Islam Ahmed
+*/
 #pragma once
 #pragma comment(lib, "ws2_32.lib")
 #include "../DCS Class Library/Packet.h"
@@ -9,8 +20,12 @@
 #include <ws2tcpip.h>
 #include <vector>
 
-
+/*
+* Client class for connecting to the server and sending and recieving packets
+* 
+*/
 class Client {
+    //Variables
     std::string droneID = {};
     std::string towerID = {};
     std::string currMessage = {};
@@ -18,7 +33,7 @@ class Client {
     WSADATA wsaData = {};
     SOCKET clientSocket = {};
     sockaddr_in serverAddress = {};
-
+    
 public:
     Client(std::string droneID);
     // Connections
