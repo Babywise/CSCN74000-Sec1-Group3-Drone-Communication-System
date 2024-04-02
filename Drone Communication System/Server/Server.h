@@ -1,14 +1,33 @@
+/*
+* Project: Next Level Drone Systems
+* Module: Server
+* Language: C++
+*
+* File: server.h
+*
+* Description:
+*
+* Authors : Islam Ahmed
+*/
 #pragma once
 #pragma comment(lib, "ws2_32.lib")
+
+// Local Libraries
 #include "../DCS Class Library/Packet.h"
 #include "../DCS Class Library/PacketManager.h"
 #include "../DCS Class Library/Logger.h"
+
+
+// Standard Libraries
 #include <winsock2.h>
 #include <iostream>
 #include <vector>
 
-
+/*
+* Class for the server to send and recieve messages
+*/
 class Server {
+    // Variables
     std::string towerID = {};
     std::string droneID = {};
     WSADATA wsaData = {};
