@@ -129,14 +129,12 @@ public:
 
 	// Serialize the packet
 	virtual char* serialize() {
-
 		unsigned int TotalSize = emptyPacketSize + this->Head.Bytes;
 
 		this->pSerialBuff = new char[TotalSize] { NULL };
 
 		std::memcpy(this->pSerialBuff, &this->Head, sizeof(Head));
 		std::memcpy(this->pSerialBuff, this->buffer, this->Head.Bytes);
-
 		return this->pSerialBuff;
 
 	}

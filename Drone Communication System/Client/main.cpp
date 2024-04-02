@@ -225,13 +225,16 @@ bool sendImage(Client& chatClient) {
         int imageSize = imageData.size();
         std::cout << "Sending image size: " << imageSize << " bytes\n";
         send(chatClient.getClientSocket(), reinterpret_cast<const char*>(&imageSize), sizeof(imageSize), 0); // send image size
-
+        Logger l;
+        std::string log("Sending image size: " + std::to_string(imageSize) + " bytes\n");
+        l.log(log, 0, "MessagePacket");
         int totalBytesSent = 0;
         int packetSize = MAX_MESSAGE_SIZE;
         // Send image data
         while (totalBytesSent < imageSize) {
             int bytesToSend = std::min<int>(packetSize, imageSize - totalBytesSent);
             int bytesSent = send(chatClient.getClientSocket(), imageData.data() + totalBytesSent, bytesToSend, 0);
+            l.log("Sent " + std::to_string(bytesSent) + " bytes (Total: " + std::to_string(totalBytesSent) + "/" + std::to_string(imageSize) + ")\n", 0, "MessagePacket");
             if (bytesSent == SOCKET_ERROR) {
                 std::cerr << "Error sending data: " << WSAGetLastError() << '\n';
                 file.close();
@@ -258,7 +261,8 @@ bool sendImage(Client& chatClient) {
     // Signal end of transmission
     int endSignal = -1; // Use -1 to indicate the end of image transmission
     send(chatClient.getClientSocket(), reinterpret_cast<const char*>(&endSignal), sizeof(endSignal), 0);
-
+    Logger l;
+    l.log("End of image transmission\n", 0, "MessagePacket");
     system("pause");
     return true;
     

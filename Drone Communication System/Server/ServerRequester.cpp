@@ -62,6 +62,7 @@ bool Client::closeConnection()
 
 int Client::sendPacket(Packet& packet)
 {
+    packet.setSource(1);
     int sendResult = send(clientSocket, packet.serialize(), maxPacketSize, 0);
 
     return sendResult;

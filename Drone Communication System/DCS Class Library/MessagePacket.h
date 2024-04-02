@@ -13,6 +13,7 @@
 // includes
 #include "../DCS Class Library/Packet.h"
 #include <string>
+#include "../DCS Class Library/Logger.h"
 
 /*
 * Message Packet class that holds the message and date
@@ -85,7 +86,13 @@ public:
 
         std::memcpy(this->pSerialBuff, &this->Head, sizeof(Head));
         std::memcpy(this->pSerialBuff + sizeof(Head), &this->Body, sizeof(this->Body));
-
+        Logger log;
+        std::string append;
+        if(this->Head.Source == 0)
+			append = "Client";
+		else
+			append = "Server";
+        log.log(this->Body.message + (std::string)" From: "+ append, 0, "MessagePacket");
         return this->pSerialBuff;
     }
 

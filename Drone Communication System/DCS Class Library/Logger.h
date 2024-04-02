@@ -46,8 +46,8 @@ class Logger {
 			}
 		}
 		
-		this->fileTimeName = ctimeBuf;
-		this->fileTimeName += " - ";
+		//this->fileTimeName = ctimeBuf;
+		this->fileTimeName += "";
 	}
 public:
 	Logger() {

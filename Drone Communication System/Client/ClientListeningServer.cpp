@@ -136,6 +136,7 @@ void Server::setDroneID(std::string droneID)
 //Send a packet to a client
 int Server::sendPacket(Packet& packet, SOCKET& clientSocket)
 {
+    packet.setSource(0);
     int sendResult = send(clientSocket, packet.serialize(), maxPacketSize, 0);
 
     return sendResult;

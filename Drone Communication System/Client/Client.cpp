@@ -61,8 +61,8 @@ bool Client::closeConnection()
 /* Serializes and sends a packet ADT*/
 int Client::sendPacket(Packet& packet)
 {
+    packet.setSource(0);
     int sendResult = send(clientSocket, packet.serialize(), maxPacketSize, 0);
-
     return sendResult;
 }
 
