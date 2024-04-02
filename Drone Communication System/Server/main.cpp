@@ -124,6 +124,7 @@ void main_program() {
                     break;
                 }
 
+                //Send Msg Packet
                 PacketManager pM(RxBuffer);
                 if (pM.getPacketType() == PacketType::packetMessage) {
                     MessagePacket* msgPacket = new MessagePacket(RxBuffer);
@@ -212,7 +213,7 @@ void mainLoop(bool& connectionPending, bool& listening, string& command, bool& m
             }
             //else { return; }
         }
-
+        // Wait for connectionFailed to be updated
         Sleep(5000);
         if ( continueProgram && !connectionFailed ) {
 
@@ -391,9 +392,10 @@ void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& serve
             }
             // Send to client to let them know they were rejected
             return;
-            // Accept Connection and bind to a new thread
+        // Go back
         } else if ( choice == 3 ) {
             return;
+        // Accept Connection and bind to a new thread
         } else if (choice == 1) { // Handle connection with clientService.
             threads.push_back(std::thread([&]() { clientService(server, chatServer, chatServer.getClientSockets().back()); }));
             threads.back().join();

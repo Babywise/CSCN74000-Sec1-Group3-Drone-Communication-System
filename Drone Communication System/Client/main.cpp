@@ -295,7 +295,7 @@ void checkConnectionsFromServer(Client& client, Client& chatClient, Server& serv
                 break;
             }*/
             return;
-        // Accept Connection
+        // Go back
         } else if ( choice == 3 ) {
             return;
         } else if ( choice == 1 ) {
