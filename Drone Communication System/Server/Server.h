@@ -1,21 +1,41 @@
+/*
+* Project: Next Level Drone Systems
+* Module: Server
+* Language: C++
+*
+* File: server.h
+*
+* Description: Contains the server class for the server module
+*
+* Authors : Islam Ahmed
+*/
 #pragma once
 #pragma comment(lib, "ws2_32.lib")
+
+// Local Libraries
 #include "../DCS Class Library/Packet.h"
 #include "../DCS Class Library/PacketManager.h"
 #include "../DCS Class Library/Logger.h"
+
+
+// Standard Libraries
 #include <winsock2.h>
 #include <iostream>
 #include <vector>
 
-
+/*
+* Class for the server to send and recieve messages
+*/
 class Server {
+    // Variables
     std::string towerID = {};
     std::string droneID = {};
     WSADATA wsaData = {};
     SOCKET serverSocket = {};
     sockaddr_in serverAddress = {};
-    vector<SOCKET> clientSockets = {};
+    std::vector<SOCKET> clientSockets = {};
     std::string currMessage = {};
+    std::string currDate = {};
 
 public:
     Server(std::string towerID, int port);
@@ -27,7 +47,7 @@ public:
 
     // Sockets
     SOCKET getServerSocket();
-    vector<SOCKET>& getClientSockets();
+    std::vector<SOCKET>& getClientSockets();
 
     // Information
     std::string getTowerID();
@@ -39,6 +59,7 @@ public:
     int sendPacket(Packet& packet, SOCKET& clientSocket);
 
     // Message
+    std::string getCurrDate();
     std::string getCurrMessage();
     void setCurrMessage(std::string message);
     void clearCurrMessage();

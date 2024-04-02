@@ -92,7 +92,7 @@ SOCKET Server::getServerSocket()
 }
 
 //Get the client sockets
-vector<SOCKET>& Server::getClientSockets()
+std::vector<SOCKET>& Server::getClientSockets()
 {
     return clientSockets;
 }
@@ -124,11 +124,17 @@ void Server::setDroneID(std::string droneID)
 //Send a packet to a client
 int Server::sendPacket(Packet& packet, SOCKET& clientSocket)
 {
+    packet.setSource(1);
     int sendResult = send(clientSocket, packet.serialize(), maxPacketSize, 0);
 
     return sendResult;
 }
 
+//Get the current date
+std::string Server::getCurrDate()
+{
+	return this->currDate;
+}
 //Get the current message
 std::string Server::getCurrMessage()
 {
@@ -138,6 +144,10 @@ std::string Server::getCurrMessage()
 //Set the current message
 void Server::setCurrMessage(std::string message)
 {
+    time_t now = time(0);
+    tm* ltm = localtime(&now);
+    std::string d = std::to_string(1900 + ltm->tm_year) + "-" + std::to_string(1 + ltm->tm_mon) + "-" + std::to_string(ltm->tm_mday) + " " + std::to_string(ltm->tm_hour) + ":" + std::to_string(ltm->tm_min) + ":" + std::to_string(ltm->tm_sec);
+    this->currDate = d;
 	this->currMessage = message;
 }
 

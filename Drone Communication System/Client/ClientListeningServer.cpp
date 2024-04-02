@@ -1,3 +1,15 @@
+/*
+* Project: Next Level Drone Systems
+* Module: Client
+* Language: C++
+*
+* File:ClientListentingServer.cpp
+*
+* Description: This file contains the implementation of the ClientListeningServer class
+*
+* Authors :
+*         1. Islam Ahmed
+*/
 #include "ClientListeningServer.h"
 
 //Initialize the server with the tower ID and port and create/bind a socket
@@ -92,7 +104,7 @@ SOCKET Server::getServerSocket()
 }
 
 //Get the client sockets
-vector<SOCKET>& Server::getClientSockets()
+std::vector<SOCKET>& Server::getClientSockets()
 {
     return clientSockets;
 }
@@ -124,6 +136,7 @@ void Server::setDroneID(std::string droneID)
 //Send a packet to a client
 int Server::sendPacket(Packet& packet, SOCKET& clientSocket)
 {
+    packet.setSource(0);
     int sendResult = send(clientSocket, packet.serialize(), maxPacketSize, 0);
 
     return sendResult;

@@ -1,6 +1,19 @@
+/*
+* Project: Next Level Drone Systems
+* Module: server
+* Language: C++
+*
+* File: ServerRequester.cpp
+*
+* Description: Runs server code on the server for tx communication with the client
+* during the chat window
+*
+* Authors : Islam Ahmed
+*/
+
 #include "ServerRequester.h"
 
-Client::Client(std::string droneID) : droneID(droneID), towerID("replace_me Twr ID"), currMessage(), wsaData(), clientSocket(), serverAddress()
+Client::Client(std::string droneID) : droneID(droneID), towerID("replace_me Twr ID"), currMessage(),currDate(), wsaData(), clientSocket(), serverAddress()
 {
     // Initialize Winsock
     if ( WSAStartup(MAKEWORD(2, 2), &wsaData) != 0 ) {
@@ -49,6 +62,7 @@ bool Client::closeConnection()
 
 int Client::sendPacket(Packet& packet)
 {
+    packet.setSource(1);
     int sendResult = send(clientSocket, packet.serialize(), maxPacketSize, 0);
 
     return sendResult;
@@ -76,7 +90,11 @@ std::string Client::getCurrMessage()
 
 void Client::setCurrMessage(std::string message)
 {
+    time_t now = time(0);
+    tm* ltm = localtime(&now);
+    std::string d = std::to_string(1900 + ltm->tm_year) + "-" + std::to_string(1 + ltm->tm_mon) + "-" + std::to_string(ltm->tm_mday) + " " + std::to_string(ltm->tm_hour) + ":" + std::to_string(ltm->tm_min) + ":" + std::to_string(ltm->tm_sec);
     this->currMessage = message;
+    this->currDate = d;
 }
 
 void Client::clearCurrMessage()
@@ -90,4 +108,9 @@ bool Client::setTimeout(int duration)
         return false;
     }
     return true;
+}
+
+void Client::setCurrDate(std::string date)
+{
+	this->currDate = date;
 }

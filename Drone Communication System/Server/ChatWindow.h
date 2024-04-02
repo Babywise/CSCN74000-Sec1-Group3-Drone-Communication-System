@@ -1,13 +1,30 @@
+/*
+* Project: Next Level Drone Systems
+* Module: Server
+* Language: C++
+*
+* File: Chat Window.h
+*
+* Description: Contains the Chat Window class for the server module
+*
+* Authors : Danny Smith
+*/
 #pragma once
+
+// Local Libraries
 #include "../DCS Class Library/ChatWindowCommunication.h"
 #include "conio.h"
 #include "Server.h"
 #include "ServerRequester.h"
+// End Local Libraries
 
+// Standard Libraries
 #include <stdlib.h>
 #include <vector>
 #include <mutex>
+// End Standard Libraries
 
+// Definitions
 #define LINE_COUNT 15
 #define EXIT_COMMAND "exit\r"
 #define BACKSPACE '\b'
@@ -23,7 +40,7 @@ bool sendChatMessage(Server& server, SOCKET& clientSocket, std::string message) 
 	char messageToSend[MAX_MESSAGE_SIZE] = {};
 	strcpy_s(messageToSend, message.c_str());
 	msgPacket.setMessage(messageToSend);
-
+	msgPacket.setCurrDate();
 	PacketManager pM(msgPacket.serialize());
 	Packet* packet = pM.getPacket();
 
@@ -105,31 +122,41 @@ void printToCoordinates(int y, int x, char* text)
 	printf("\033[%d;%dH%s", y, x, text);
 }
 
+/*
+* This class is used to create a chat window for the server
+* It will display the chat messages and allow the user to send messages
+* to the client
+*/
 class ChatWindow {
 private:
+	// Variables
 	std::vector<ChatWindowCommunication> chats;
 	std::mutex lock;
 	bool hasUpdate = false;
 	bool termination_pending = false;
 	bool connected = false;
+	// End Variables
 public:
+
 	std::string message = "";
 	ChatWindow() {
 
 	}
+	/* Add Chat to chat queue */
 	void addChat(char* date, std::string message) {
 		lock.lock();
 		ChatWindowCommunication newChat;
-		newChat.setMessage(message);
+		newChat.setMessage(date + message);
 		chats.push_back(newChat);
 		hasUpdate = true;
 		lock.unlock();
 	}
+	 /* Update the chat window */
 	void updateWindow() {
 		// CLEAR Screen
 		std::system("cls");
 		lock.lock();
-		// load last LINE_COUNT messages into a vector
+		// load last LINE_COUNT messages into a std::vector
 		std::vector<ChatWindowCommunication> lastChats;
 		int counter = 0;
 		for ( int i = this->chats.size() - 1; i >= 0; i-- ) {
@@ -150,32 +177,42 @@ public:
 		std::string output_message = ENTER_MESSAGE + this->message;
 		printToCoordinates(LINE_COUNT + 1, 0, (char*)output_message.c_str());
 	}
+	/* Check if there is an update */
 	bool HasUpdate() {
 		return hasUpdate;
 	}
+	/* Set update to true */
 	void updated() {
 		hasUpdate = true;
 	}
+	/* Get all chats */
 	std::vector<ChatWindowCommunication> getChats() {
 		return chats;
 	}
+	/* Terminate the chat window */
 	void terminate() {
 		termination_pending = true;
 	}
+	/* Check if the chat window is terminating */
 	bool isTerminating() {
 		return termination_pending;
 	}
+	/* Check if the chat window is connected */
 	void connect() {
 		connected = true;
 	}
+	/* Check if the chat window is disconnected */
 	void disconnect() {
 		connected = false;
 	}
+	/* Check if the chat window is connected */
 	bool isConnected() {
 		return connected;
 	}
 };
 
+// Function to update the chat window 
+// runs as a daemon thread
 void UpdateWindow(ChatWindow& window) {
 	while ( !window.isTerminating() || window.HasUpdate() ) {
 		std::this_thread::sleep_for(std::chrono::milliseconds(CHECK_INTERVAL));
@@ -184,20 +221,22 @@ void UpdateWindow(ChatWindow& window) {
 		}
 	}
 }
-
-void listener(ChatWindow& window, Server& chatClient, SOCKET& clientSocket, string& message) {
+/* Runs a listener as a daemon thread and listens for messages to add to the chat queue*/
+void listener(ChatWindow& window, Server& chatClient, SOCKET& clientSocket, std::string& message) {
 
 	while ( (!window.isTerminating() || window.HasUpdate()) && message != EXIT_COMMAND ) {
 		// if message received
 		chatClient.setTimeout(clientSocket, 1);
 		// wait for message
 		if ( recieveChatMessage(chatClient, clientSocket) ) {
-			window.addChat((char*)DEFAULT_DATE, chatClient.getCurrMessage());
+			window.addChat((char*)"", chatClient.getCurrMessage());
 		}
 		chatClient.clearCurrMessage();
 		// if message is exit command and drone is disconnected
 		if ( message == EXIT_COMMAND && window.isConnected() ) {
 			sendChatMessage(chatClient, clientSocket, "[" + chatClient.getTowerID() + "] " + "Server has disconnected");
+            // Set state to _Menu_
+
 		}
 		chatClient.setTimeout(clientSocket, 5000);
 	}
@@ -229,7 +268,7 @@ int runChatWindow(Server& chatClient, SOCKET& clientSocket) {
 				//send message to client
 				std::string add_to_chat = "[" + chatClient.getTowerID() + "] " + CHAT.message;
 				sendChatMessage(chatClient, clientSocket, add_to_chat);
-				CHAT.addChat((char*)DEFAULT_DATE, add_to_chat);
+				CHAT.addChat((char*)chatClient.getCurrDate().c_str(), " - " + add_to_chat);
 			}
 			message = "";
 		} else if ( user_character == BACKSPACE ) {
@@ -240,7 +279,7 @@ int runChatWindow(Server& chatClient, SOCKET& clientSocket) {
 		}
 		CHAT.message = message;
 	}
-	CHAT.addChat((char*)DEFAULT_DATE, (char*)"Goodbye!");
+	CHAT.addChat((char*)chatClient.getCurrDate().c_str(),(char*)"Goodbye!");
 	t1.join();
 	t2.join();
 	return 0;

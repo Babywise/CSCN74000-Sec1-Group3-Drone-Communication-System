@@ -1,19 +1,39 @@
+/*
+* Project: Next Level Drone Systems
+* Module: server
+* Language: C++
+*
+* File: ServerRequester.cpp
+*
+* Description: Runs server code on the server for tx communication with the client
+* during the chat window
+*
+* Authors :
+*          1. Islam Ahmed
+*          2. Danny Smith
+*          3. Nicholas Prince
+*/
+
+// Local Libraries
 #include "Server.h"
 #include "ChatWindow.h"
 #include "ServerRequester.h"
 #include "ServerMenus.h"
 #include "../DCS Class Library/Packet.h"
-#include <Windows.h>
 
+// System Libraries
+#include <Windows.h>
 #include <thread>
 #include <iostream>
 #include <fstream>
 #include <codecvt> 
 
+// defines
 #define TOWER_ID "T001"
 #define NOTIFY_CONNECTION_LINE 6
 #define IMAGE_PATH "./Images/"
 
+//enums
 enum class ServerState {
     ACTIVE,
     INACTIVE,
@@ -22,17 +42,20 @@ enum class ServerState {
     LISTENING
 };
 
+// declarations
 int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket);
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer);
 void mainLoop(bool& connectionPending, bool& listening, std::string& command, bool& menuSelected, bool& connectionFailed);
 void main_program();
 void stateMachine();
 void getState();
-
 ServerState STATE = ServerState::INACTIVE;
-string droneID = "replace_me_droneID";
-string extension = ".jpg";
+std::string droneID = "replace_me_droneID";
+std::string extension = ".jpg";
 
+
+
+/* Runs a daemon thread to provide the current state to any clients that connect*/
 void stateMachine() {
 
     while ( true ) {
@@ -40,7 +63,8 @@ void stateMachine() {
         state_machine.listenforConnection();
         state_machine.acceptConnection();
         MessagePacket* msgPacket = new MessagePacket();
-        switch ( STATE ) {
+        // convert enum to string
+        switch ( STATE ) { 
         case ServerState::LISTENING:
             msgPacket->setMessage((char*)"LISTENING");
             break;
@@ -62,6 +86,7 @@ void stateMachine() {
         state_machine.shutdownServer();
     }
 }
+// Gets the current state from the client
 void getState() {
     Client state_server(TOWER_ID);
     state_server.connectToServer(SERVER_IP, CLIENT_STATE_PORT);
@@ -82,7 +107,9 @@ int main(void) {
     main_program();
     return 0;
 }
-
+/*
+* Runs the main program for the server
+*/
 void main_program() {
     std::string command;
 
@@ -96,10 +123,15 @@ void main_program() {
 
         while ( listening == false ) {}   // wait to start listening
 
+    while (listening == false) {}   // wait to start listening
+
+
+    while ( command != "3" ) {
+
         Client client(TOWER_ID);
 
         // Main Menu
-        while (command != "1" && command != "2" && command != "3") {
+        while (command != "1" && command != "2" && command != "3") { // whitelist options
 
             serverStartMenu(TOWER_ID);
 
@@ -124,7 +156,7 @@ void main_program() {
                     break;
                 }
 
-                //Send Msg Packet
+                //Recv Msg Packet
                 PacketManager pM(RxBuffer);
                 if (pM.getPacketType() == PacketType::packetMessage) {
                     MessagePacket* msgPacket = new MessagePacket(RxBuffer);
@@ -173,7 +205,7 @@ void main_program() {
 @return void
 */
 
-void mainLoop(bool& connectionPending, bool& listening, string& command, bool& menuSelected, bool& connectionFailed) {
+void mainLoop(bool& connectionPending, bool& listening, std::string& command, bool& menuSelected, bool& connectionFailed) {
 
     // Main server loop to accept connections and handle them
     // while Exit is not selected
@@ -284,7 +316,7 @@ bool receiveImage(SOCKET& clientChatSocket) {
         }
 
         //save image to file
-        std::string filename = IMAGE_PATH + string("received_image_") + std::to_string(time(nullptr)) + extension;;
+        std::string filename = IMAGE_PATH + string("received_image_") + std::to_string(time(nullptr)) + extension;
         std::ofstream outFile(filename, std::ios::binary);
         if (!outFile) {
             std::cerr << "Failed to create file\n";
@@ -328,7 +360,7 @@ int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket) 
     server.setDroneID(droneID);
     bool running = true;
 
-    while (running) {
+    while ( running ) {
 
         // Print Menu
         serverDroneMenu(server.getTowerID(), server.getDroneID());
@@ -338,7 +370,7 @@ int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket) 
 
         int choice = std::stoi(command);
 
-        switch (choice) {
+        switch ( choice ) {
         // run chat window
         case 1:
             runChatWindow(chatServer, clientChatSocket);
@@ -365,8 +397,8 @@ int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket) 
 
 /*
 * This function is used to check on a connection request from a client and allow the user to accept or reject the connection
-* Push a new thread to the vector of threads to handle the connection then join the thread if connection is accepted
-@param threads: vector of threads to store the threads created, server: server object to handle server connections, chatServer: server object to handle chat server connections
+* Push a new thread to the std::vector of threads to handle the connection then join the thread if connection is accepted
+@param threads: std::vector of threads to store the threads created, server: server object to handle server connections, chatServer: server object to handle chat server connections
 @return void
 */
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer) {
@@ -381,12 +413,12 @@ void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& serve
         std::cin >> command;
         int choice = std::stoi(command);
         // Regret Connection
-        if (choice == 2) {
-            if (!server.closeLastConnection()) {
+        if ( choice == 2 ) {
+            if ( !server.closeLastConnection() ) {
                 std::cout << "Closing Server Connection Failed.\n";
                 break;
             }
-            if (!chatServer.closeLastConnection()) {
+            if ( !chatServer.closeLastConnection() ) {
                 std::cout << "Closing Chat Server Connection Failed.\n";
                 break;
             }
@@ -396,7 +428,7 @@ void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& serve
         } else if ( choice == 3 ) {
             return;
         // Accept Connection and bind to a new thread
-        } else if (choice == 1) { // Handle connection with clientService.
+        } else if ( choice == 1 ) { // Handle connection with clientService.
             threads.push_back(std::thread([&]() { clientService(server, chatServer, chatServer.getClientSockets().back()); }));
             threads.back().join();
             std::cout << "Thread created\n";

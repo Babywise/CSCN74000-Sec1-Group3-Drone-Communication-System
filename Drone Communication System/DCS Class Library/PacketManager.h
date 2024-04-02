@@ -1,7 +1,23 @@
+/*
+* Project: Next Level Drone Systems
+* Package: DCS Class Library
+* Language: C++
+*
+* File: PacketManager.h
+*
+* Description: Contains the PacketManager class for the DCS Class Library
+*
+* Authors : Islam Ahmed
+* 
+*/
 #pragma once
+
+//includes
 #include "Packet.h"
 #include "MessagePacket.h"
 
+// Packet Manager Class for converting packets to their 
+// respective types
 class PacketManager {
 	Packet* packet;
 	PacketType pType;
@@ -30,10 +46,10 @@ private:
 
 		switch ( this->pType )
 		{
-		case PacketType::packetInvalid:
+		case PacketType::packetInvalid: // invalid packet
 			//throw new exception("Not Implemented");
 			break;
-		case PacketType::packetMessage:
+		case PacketType::packetMessage: // message packet
 			return new MessagePacket(buffer);
 			break;
 		default:
