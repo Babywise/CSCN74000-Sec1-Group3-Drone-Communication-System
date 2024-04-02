@@ -24,7 +24,7 @@ enum class ServerState {
 
 int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket);
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer);
-void mainLoop(bool& connectionPending, bool& listening, std::string& command, bool& menuSelected);
+void mainLoop(bool& connectionPending, bool& listening, std::string& command, bool& menuSelected, bool& connectionFailed);
 void main_program();
 void stateMachine();
 void getState();
@@ -84,14 +84,15 @@ int main(void) {
 }
 
 void main_program() {
-    bool connectionPending = false;
-    bool listening = false;
     std::string command;
-    bool menuSelected = false;
 
     while ( command != "3" ) {
 
-        std::thread main = std::thread([&]() { mainLoop(connectionPending, listening, command, menuSelected); });
+        bool connectionPending = false;
+        bool listening = false;
+        bool menuSelected = false;
+        bool connectionFailed = false;
+        std::thread main = std::thread([&]() { mainLoop(connectionPending, listening, command, menuSelected, connectionFailed); });
 
         while ( listening == false ) {}   // wait to start listening
 
@@ -117,6 +118,9 @@ void main_program() {
                 char RxBuffer[maxPacketSize] = {};
                 if (recv(client.getClientSocket(), RxBuffer, maxPacketSize, 0) <= 0) {
                     std::cout << "Response Lost.\n";
+                    connectionFailed = true;
+                    connectionPending = false;
+                    main.join();
                     break;
                 }
 
@@ -126,7 +130,7 @@ void main_program() {
                     client.setCurrMessage(msgPacket->getMessage());
                     std::cout << client.getCurrMessage() << "\n";
                 }
-                Sleep(2000);
+                Sleep(5000);
                 connectionPending = false;
                 main.join();
 
@@ -168,7 +172,7 @@ void main_program() {
 @return void
 */
 
-void mainLoop(bool& connectionPending, bool& listening, string& command, bool& menuSelected) {
+void mainLoop(bool& connectionPending, bool& listening, string& command, bool& menuSelected, bool& connectionFailed) {
 
     // Main server loop to accept connections and handle them
     // while Exit is not selected
@@ -208,7 +212,10 @@ void mainLoop(bool& connectionPending, bool& listening, string& command, bool& m
             }
             //else { return; }
         }
-        if ( continueProgram ) {
+
+        Sleep(5000);
+        if ( continueProgram && !connectionFailed ) {
+
             if ( !server.acceptConnection() ) {
                 std::cout << "Accepting Server Connection Failed.\n";
                 break;
@@ -235,7 +242,7 @@ void mainLoop(bool& connectionPending, bool& listening, string& command, bool& m
         chatServer.shutdownServer();
 
         // Reset menu option
-        if ( command != "3" ) {
+        if ( command != "3" || connectionFailed) {
             menuSelected = false;
             command.erase();
             //main_program();

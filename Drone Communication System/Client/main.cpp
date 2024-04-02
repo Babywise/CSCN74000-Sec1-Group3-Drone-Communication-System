@@ -296,6 +296,8 @@ void checkConnectionsFromServer(Client& client, Client& chatClient, Server& serv
             }
             continue;
         // Accept Connection
+        } else if ( choice == 3 ) {
+            return;
         } else if ( choice == 1 ) {
             if ( !server.acceptConnection() ) {
                 std::cout << "Accepting Server Connection Failed.\n";
