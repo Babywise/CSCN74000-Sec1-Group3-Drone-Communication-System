@@ -6,7 +6,8 @@
 
 #ifndef PCH_H
 #define PCH_H
-
+#define _CRT_SECURE_NO_WARNINGS
+#define _SILENCE_EXPERIMENTAL_FILESYSTEM_DEPRECATION_WARNING
 // add headers that you want to pre-compile here
 
 #endif //PCH_H

@@ -1,3 +1,15 @@
+/*
+* Project: Next Level Drone Systems
+* Module: Client
+* Language: C++
+*
+* File: ChatWindow.h
+*
+* Description: Contains the chat window class and functions for the client
+* To display the chat window and send and recieve messages gui style
+*
+* Authors : Danny Smith
+*/
 #pragma once
 #include "../DCS Class Library/ChatWindowCommunication.h"
 #include "conio.h"
@@ -24,7 +36,8 @@ bool sendChatMessage(Client& client, std::string message) {
 	char messageToSend[MAX_MESSAGE_SIZE] = {};
 	strcpy_s(messageToSend, message.c_str());
 	msgPacket.setMessage(messageToSend);
-
+	msgPacket.setCurrDate();
+	client.setCurrDate(msgPacket.getCurrDate());
 	PacketManager pM(msgPacket.serialize());
 	Packet* packet = pM.getPacket();
 
@@ -119,7 +132,7 @@ public:
 	void addChat(char* date, std::string message) {
 		lock.lock();
 		ChatWindowCommunication newChat;
-		newChat.setMessage(message);
+		newChat.setMessage(date + message);
 		chats.push_back(newChat);
 		hasUpdate = true;
 		lock.unlock();
@@ -128,7 +141,7 @@ public:
 		// CLEAR Screen
 		std::system("cls");
 		lock.lock();
-		// load last LINE_COUNT messages into a vector
+		// load last LINE_COUNT messages into a std::vector
 		std::vector<ChatWindowCommunication> lastChats;
 		int counter = 0;
 		for ( int i = this->chats.size() - 1; i >= 0; i-- ) {
@@ -184,20 +197,21 @@ void UpdateWindow(ChatWindow& window) {
 	}
 }
 
-void listener(ChatWindow& window, Client& chatClient, string& message) {
+void listener(ChatWindow& window, Client& chatClient, std::string& message) {
 
 	while ( (!window.isTerminating() || window.HasUpdate()) && message != EXIT_COMMAND ) {
 		// if message received
 		chatClient.setTimeout(1);
 		// wait for message
 		if ( recieveChatMessage(chatClient) ) {
-			window.addChat((char*)DEFAULT_DATE, chatClient.getCurrMessage());
+			window.addChat((char*)"", chatClient.getCurrMessage());
 		}
 		chatClient.clearCurrMessage();
 		// if message is exit command and server is disconnected
-		if ( message == EXIT_COMMAND && !window.isConnected()) {
+		if ( message == EXIT_COMMAND && window.isConnected()) {
 			sendChatMessage(chatClient, "[" + chatClient.getDroneID() + "] " + "Drone has disconnected");
 		}
+		chatClient.setTimeout(5000);
 	}
 	Sleep(1000);
 }
@@ -227,7 +241,7 @@ int runChatWindow(Client& chatClient) {
 				//send message to server
 				std::string add_to_chat = "[" + chatClient.getDroneID() + "] " + CHAT.message;
 				sendChatMessage(chatClient, add_to_chat);
-				CHAT.addChat((char*)DEFAULT_DATE, add_to_chat);
+				CHAT.addChat((char*)chatClient.getCurrDate().c_str()," - "+ add_to_chat);
 			}
 			message = "";
 		} else if ( user_character == BACKSPACE) {
@@ -238,7 +252,7 @@ int runChatWindow(Client& chatClient) {
 		}
 		CHAT.message = message;
 	}
-	CHAT.addChat((char*)DEFAULT_DATE, (char*)"Goodbye!");
+	CHAT.addChat((char*)chatClient.getCurrDate().c_str(), (char*)"Goodbye!");
 	t1.join();
 	t2.join();
 	return 0;

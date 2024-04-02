@@ -1,3 +1,14 @@
+/*
+* Project: Next Level Drone Systems
+* Module: Server
+* Language: C++
+*
+* File: ServerMenus.h
+*
+* Description: Contains the Server Menus for the server module
+*
+* Authors : Danny Smith
+*/
 #pragma once
 #include <iostream>
 

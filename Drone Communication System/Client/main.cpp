@@ -1,20 +1,41 @@
+/*
+* Project: Next Level Drone Systems
+* Module: Client
+* Language: C++
+*
+* File:[Client] - main.cpp
+*
+* Description: 
+*
+* Authors :
+*         1. Islam Ahmed
+*         2. Danny Smith
+*         3. Nicholas Prince
+*/
+
+//Include Local Libraries
 #include "../DCS Class Library/Packet.h"
 #include "../DCS Class Library/MessagePacket.h"
 #include "Client.h"
 #include "ChatWindow.h"
 #include "ClientListeningServer.h"
 #include "ClientMenus.h"
-#include <Windows.h>
+// End Include Local Libraries
 
+// Include
+#include <Windows.h>
 #include <iostream>
 #include <string>
 #include <fstream>
 #include <queue>
 #include <codecvt>
+// End Include
 
+//Define
 #define DRONE_ID "D001"
 #define SERVER_IMAGE_PATH "./Images/"
 
+//Enums
 enum class ServerState {
     ACTIVE,
     INACTIVE,
@@ -23,15 +44,20 @@ enum class ServerState {
     LISTENING
 };
 
+//Declarations
 void clientService(Client& client, Client& chatClient);
 void checkConnectionsFromServer(Client& client, Client& chatClient, Server& server);
 void mainLoop();
 bool sendImage(Client& chatClient);
 void getState();
 void stateMachine();
-
 ServerState STATE = ServerState::INACTIVE;
+// End Declarations
 
+/*
+* Runs as a daemon thread to send the state of the drone to the client
+* When the drone connects and then closes the socket
+*/
 void stateMachine() {
     while ( true ) {
         Server state_machine(DRONE_ID, CLIENT_STATE_PORT);
@@ -61,7 +87,9 @@ void stateMachine() {
         state_machine.shutdownServer();
     }
 }
-
+/*
+* Connects to the client state machine to get the state and returns it.
+*/
 void getState() {
     Client state_client(DRONE_ID);
     state_client.connectToServer(SERVER_IP, SERVER_STATE_PORT);
@@ -70,18 +98,21 @@ void getState() {
     state_client.closeConnection();
 }
 
+/*
+* Main function to run the client
+*/
 int main(void) {
     std::thread state_machine = std::thread([&]() { stateMachine(); }); // Daemon thread to send state to client
     state_machine.detach();
     mainLoop();
     return 0;
 }
-
+ // Runs the client connection program until the user exits
 void mainLoop() {
 
     std::string command;
 
-    while ( command != "3" ) {
+    while ( command != "3" ) { // while user not exited
 
         std::system("cls");
         Client client(DRONE_ID);
@@ -117,11 +148,11 @@ void mainLoop() {
                 }
 
                 // main loop
-                clientService(client, chatClient);
+                clientService(client, chatClient); // Runs the connected interface
 
             // Check Connections
             } else if (choice == 2) {
-                checkConnectionsFromServer(client, chatClient, server);
+                checkConnectionsFromServer(client, chatClient, server); // check for active connections and run client service if one is accepted
             // Exit
             } else if ( choice == 3 ) {
                 std::cout << "Thank you for using Drone Communication System!\n";
@@ -194,13 +225,16 @@ bool sendImage(Client& chatClient) {
         int imageSize = imageData.size();
         std::cout << "Sending image size: " << imageSize << " bytes\n";
         send(chatClient.getClientSocket(), reinterpret_cast<const char*>(&imageSize), sizeof(imageSize), 0); // send image size
-
+        Logger l;
+        std::string log("Sending image size: " + std::to_string(imageSize) + " bytes\n");
+        l.log(log, 0, "MessagePacket");
         int totalBytesSent = 0;
         int packetSize = MAX_MESSAGE_SIZE;
         // Send image data
         while (totalBytesSent < imageSize) {
             int bytesToSend = std::min<int>(packetSize, imageSize - totalBytesSent);
             int bytesSent = send(chatClient.getClientSocket(), imageData.data() + totalBytesSent, bytesToSend, 0);
+            l.log("Sent " + std::to_string(bytesSent) + " bytes (Total: " + std::to_string(totalBytesSent) + "/" + std::to_string(imageSize) + ")\n", 0, "MessagePacket");
             if (bytesSent == SOCKET_ERROR) {
                 std::cerr << "Error sending data: " << WSAGetLastError() << '\n';
                 file.close();
@@ -227,7 +261,8 @@ bool sendImage(Client& chatClient) {
     // Signal end of transmission
     int endSignal = -1; // Use -1 to indicate the end of image transmission
     send(chatClient.getClientSocket(), reinterpret_cast<const char*>(&endSignal), sizeof(endSignal), 0);
-
+    Logger l;
+    l.log("End of image transmission\n", 0, "MessagePacket");
     system("pause");
     return true;
     
@@ -290,12 +325,14 @@ void checkConnectionsFromServer(Client& client, Client& chatClient, Server& serv
         int choice = std::stoi(command);
         // Regret Connection
         if ( choice == 2 ) {
-            if ( !server.closeLastConnection() ) {
+            /*if ( !server.closeLastConnection() ) {
                 std::cout << "Closing Server Connection Failed.\n";
                 break;
-            }
-            continue;
-        // Accept Connection
+            }*/
+            return;
+        // Go back
+        } else if ( choice == 3 ) {
+            return;
         } else if ( choice == 1 ) {
             if ( !server.acceptConnection() ) {
                 std::cout << "Accepting Server Connection Failed.\n";
@@ -304,7 +341,7 @@ void checkConnectionsFromServer(Client& client, Client& chatClient, Server& serv
                 std::cout << "Server Connection (SUCCESS).\n";
 
                 // Creat and Send message to server
-                std::string message = DRONE_ID + string("| Accepted Your Connection");
+                std::string message = DRONE_ID + std::string("| Accepted Your Connection");
                 MessagePacket msgPacket;
                 char messageToSend[MAX_MESSAGE_SIZE] = {};
                 strcpy_s(messageToSend, message.c_str());
