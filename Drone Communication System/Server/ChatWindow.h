@@ -129,7 +129,7 @@ public:
 		// CLEAR Screen
 		std::system("cls");
 		lock.lock();
-		// load last LINE_COUNT messages into a vector
+		// load last LINE_COUNT messages into a std::vector
 		std::vector<ChatWindowCommunication> lastChats;
 		int counter = 0;
 		for ( int i = this->chats.size() - 1; i >= 0; i-- ) {
@@ -185,7 +185,7 @@ void UpdateWindow(ChatWindow& window) {
 	}
 }
 
-void listener(ChatWindow& window, Server& chatClient, SOCKET& clientSocket, string& message) {
+void listener(ChatWindow& window, Server& chatClient, SOCKET& clientSocket, std::string& message) {
 
 	while ( (!window.isTerminating() || window.HasUpdate()) && message != EXIT_COMMAND ) {
 		// if message received

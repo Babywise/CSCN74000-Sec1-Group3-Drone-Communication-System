@@ -335,7 +335,7 @@ void checkConnectionsFromServer(Client& client, Client& chatClient, Server& serv
                 std::cout << "Server Connection (SUCCESS).\n";
 
                 // Creat and Send message to server
-                std::string message = DRONE_ID + string("| Accepted Your Connection");
+                std::string message = DRONE_ID + std::string("| Accepted Your Connection");
                 MessagePacket msgPacket;
                 char messageToSend[MAX_MESSAGE_SIZE] = {};
                 strcpy_s(messageToSend, message.c_str());

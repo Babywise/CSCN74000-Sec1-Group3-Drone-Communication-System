@@ -1,6 +1,23 @@
+/*
+* Project: Next Level Drone Systems
+* Package: DCS Class Library
+* Language: C++
+*
+* File: MessagePacket.h
+*
+* Description:
+*
+* Authors : Islam Ahmed
+*/
 #pragma once
+// includes
 #include "../DCS Class Library/Packet.h"
 #include <string>
+
+/*
+* Message Packet class that holds the message and date
+* Inherits from Packet
+*/
 class MessagePacket : public Packet {
 private:
 
@@ -29,33 +46,35 @@ public:
         this->buffer = nullptr;
     }
 
-    // Message
+     // Setters
     std::string setCurrDate() {
 		time_t now = time(0);
 		tm* ltm = localtime(&now);
-		string d = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday) + " " + to_string(ltm->tm_hour) + ":" + to_string(ltm->tm_min) + ":" + to_string(ltm->tm_sec);
+		std::string d = std::to_string(1900 + ltm->tm_year) + "-" + std::to_string(1 + ltm->tm_mon) + "-" + std::to_string(ltm->tm_mday) + " " + std::to_string(ltm->tm_hour) + ":" + std::to_string(ltm->tm_min) + ":" + std::to_string(ltm->tm_sec);
 		strcpy(this->Body.date, d.c_str());
 		return d;
 	}
-    std::string getCurrDate() {
-	    return this->Body.date;
-	}
+    // Message
     void setMessage(char* message) {
         time_t now = time(0);
         tm* ltm = localtime(&now);
-        string d = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday) + " " + to_string(ltm->tm_hour) + ":" + to_string(ltm->tm_min) + ":" + to_string(ltm->tm_sec);
+        std::string d = std::to_string(1900 + ltm->tm_year) + "-" + std::to_string(1 + ltm->tm_mon) + "-" + std::to_string(ltm->tm_mday) + " " + std::to_string(ltm->tm_hour) + ":" + std::to_string(ltm->tm_min) + ":" + std::to_string(ltm->tm_sec);
         strcpy(this->Body.date, d.c_str());
         strcpy_s(this->Body.message, message);
     }
 
+    //getters
+    std::string getCurrDate() {
+	    return this->Body.date;
+	}
     std::string getMessage() {
         if (this->Body.date == "") {
             time_t now = time(0);
             tm* ltm = localtime(&now);
-            string d = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday) + " " + to_string(ltm->tm_hour) + ":" + to_string(ltm->tm_min) + ":" + to_string(ltm->tm_sec);
-            return d + (string)" - " + this->Body.message;
+            std::string d = std::to_string(1900 + ltm->tm_year) + "-" + std::to_string(1 + ltm->tm_mon) + "-" + std::to_string(ltm->tm_mday) + " " + std::to_string(ltm->tm_hour) + ":" + std::to_string(ltm->tm_min) + ":" + std::to_string(ltm->tm_sec);
+            return d + (std::string)" - " + this->Body.message;
         }
-        return this->Body.date + (string)" - " +this->Body.message;
+        return this->Body.date + (std::string)" - " +this->Body.message;
     }
 
     // Serialize the packet

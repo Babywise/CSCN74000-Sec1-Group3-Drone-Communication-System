@@ -104,7 +104,7 @@ SOCKET Server::getServerSocket()
 }
 
 //Get the client sockets
-vector<SOCKET>& Server::getClientSockets()
+std::vector<SOCKET>& Server::getClientSockets()
 {
     return clientSockets;
 }

@@ -14,7 +14,7 @@ class Server {
     WSADATA wsaData = {};
     SOCKET serverSocket = {};
     sockaddr_in serverAddress = {};
-    vector<SOCKET> clientSockets = {};
+    std::vector<SOCKET> clientSockets = {};
     std::string currMessage = {};
     std::string currDate = {};
 
@@ -28,7 +28,7 @@ public:
 
     // Sockets
     SOCKET getServerSocket();
-    vector<SOCKET>& getClientSockets();
+    std::vector<SOCKET>& getClientSockets();
 
     // Information
     std::string getTowerID();

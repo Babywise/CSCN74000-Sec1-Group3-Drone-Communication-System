@@ -1,4 +1,17 @@
+/*
+* Project: Next Level Drone Systems
+* Package: DCS Class Library
+* Language: C++
+*
+* File: ChatWindowCommunication.h
+*
+* Description:
+*
+* Authors :
+*/
 #pragma once
+
+//includes
 #include <stdlib.h>
 #include <string>
 #include "Packet.h"
@@ -25,7 +38,7 @@ public:
 	void setMessage(std::string message) {
 		time_t now = time(0);
 		tm* ltm = localtime(&now);
-		string d = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday) + " " + to_string(ltm->tm_hour) + ":" + to_string(ltm->tm_min) + ":" + to_string(ltm->tm_sec);	
+		std::string d = std::to_string(1900 + ltm->tm_year) + "-" + std::to_string(1 + ltm->tm_mon) + "-" + std::to_string(ltm->tm_mday) + " " + std::to_string(ltm->tm_hour) + ":" + std::to_string(ltm->tm_min) + ":" + std::to_string(ltm->tm_sec);
 		this->date = d;
 		this->message = message;
 	}
@@ -37,7 +50,7 @@ public:
 	}
 
 	//getters
-	string getDate() {
+	std::string getDate() {
 		return this->date;
 	}
 

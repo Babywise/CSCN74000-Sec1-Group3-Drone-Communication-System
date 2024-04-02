@@ -30,8 +30,8 @@ void stateMachine();
 void getState();
 
 ServerState STATE = ServerState::INACTIVE;
-string droneID = "replace_me_droneID";
-string extension = ".jpg";
+std::string droneID = "replace_me_droneID";
+std::string extension = ".jpg";
 
 void stateMachine() {
 
@@ -171,7 +171,7 @@ void main_program() {
 @return void
 */
 
-void mainLoop(bool& connectionPending, bool& listening, string& command, bool& menuSelected) {
+void mainLoop(bool& connectionPending, bool& listening, std::string& command, bool& menuSelected) {
 
     // Main server loop to accept connections and handle them
     // while Exit is not selected
@@ -272,7 +272,7 @@ bool receiveImage( SOCKET& clientChatSocket) {
         }
 
         //save image to file
-        std::string filename = IMAGE_PATH + string("received_image_") + std::to_string(time(nullptr)) + extension;
+        std::string filename = IMAGE_PATH + std::string("received_image_") + std::to_string(time(nullptr)) + extension;
         std::ofstream outFile(filename, std::ios::binary);
         if (!outFile) {
             std::cerr << "Failed to create file\n";
@@ -351,8 +351,8 @@ int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket) 
 
 /*
 * This function is used to check on a connection request from a client and allow the user to accept or reject the connection
-* Push a new thread to the vector of threads to handle the connection then join the thread if connection is accepted
-@param threads: vector of threads to store the threads created, server: server object to handle server connections, chatServer: server object to handle chat server connections
+* Push a new thread to the std::vector of threads to handle the connection then join the thread if connection is accepted
+@param threads: std::vector of threads to store the threads created, server: server object to handle server connections, chatServer: server object to handle chat server connections
 @return void
 */
 void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& server, Server& chatServer) {

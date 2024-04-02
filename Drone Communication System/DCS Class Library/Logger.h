@@ -1,4 +1,14 @@
-
+/*
+* Project: Next Level Drone Systems
+* Package: DCS Class Library
+* Language: C++
+*
+* File: Logger.h
+*
+* Description:
+*
+* Authors : Danny Smith
+*/
 #pragma once
 
 // includes
@@ -11,14 +21,19 @@
 #include <experimental/filesystem>
 
 //define statements
-
 #define LOGSPATH "../Logs/"
 #define DEFAULT_LOG "log"
 #define LOGEXTENSION ".log"
 #define ARCHIVE "../Archive/"
 #define ARCHIVE_EXT ".archive"
 
-
+/*
+* Logger class
+* Used to log messages to a file
+* @param message - log
+* @param severity - severity of the log
+* @param logname - name of the log
+*/
 class Logger {
 	std::string fileTimeName;
 	void generateFileTime() {
@@ -77,16 +92,6 @@ if (!std::experimental::filesystem::exists(LOGSPATH)) {
 		// replace endl with \0
 		if (ctimeBuf[strlen(ctimeBuf) - 1] == '\n') ctimeBuf[strlen(ctimeBuf) - 1] = '\0';
 		outfile << ctimeBuf << "\t" << message << std::endl;
-		outfile.close();
-	}
-	void emptyLine(std::string logname) {
-		std::ofstream outfile;
-		outfile.open((std::string)LOGSPATH + (std::string)this->fileTimeName + (std::string)logname + (std::string)LOGEXTENSION, std::ios::app);
-		outfile << std::endl;
-		outfile.close();
-
-		outfile.open((std::string)ARCHIVE + (std::string)logname + (std::string)ARCHIVE_EXT, std::ios::app);
-		outfile << std::endl;
 		outfile.close();
 	}
 	

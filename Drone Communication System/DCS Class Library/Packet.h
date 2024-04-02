@@ -1,6 +1,19 @@
+/*
+* Project: Next Level Drone Systems
+* Package: DCS Class Library
+* Language: C++
+*
+* File: Packet.h
+*
+* Description:
+*
+* Authors : Islam Ahmed
+*/
 #pragma once
 
 #include <iostream>
+
+// define
 #define HEADER_BYTE_SIZE 16
 #define MAX_MESSAGE_SIZE 78000
 #define SERVER_IP "127.0.0.1"
@@ -12,16 +25,17 @@
 #define SERVER_STATE_PORT 30000
 #define CLIENT_STATE_PORT 40000
 
-using namespace std;
-
+//enums
 enum class PacketType {
 	packetInvalid,
 	packetMessage
 };
 
+// variables
 const unsigned int maxPacketSize = MAX_PACKET_SIZE;
 const unsigned int emptyPacketSize = HEADER_BYTE_SIZE;
 
+// Packet Class
 class Packet {
 protected:
 	struct Header {
