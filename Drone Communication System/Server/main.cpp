@@ -333,6 +333,7 @@ int clientService(Server& server, Server& chatServer, SOCKET& clientChatSocket) 
         // Request images
         case 2:
             receiveImage(clientChatSocket);
+            break;
         // Exit chat
         case 3:
             std::cout << "GoodBye!" << std::endl;
