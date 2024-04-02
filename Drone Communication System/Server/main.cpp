@@ -88,13 +88,12 @@ void main_program() {
     bool listening = false;
     std::string command;
     bool menuSelected = false;
-    std::thread main = std::thread([&]() { mainLoop(connectionPending, listening, command, menuSelected); });
-
-
-    while (listening == false) {}   // wait to start listening
-
 
     while ( command != "3" ) {
+
+        std::thread main = std::thread([&]() { mainLoop(connectionPending, listening, command, menuSelected); });
+
+        while ( listening == false ) {}   // wait to start listening
 
         Client client(TOWER_ID);
 
@@ -160,7 +159,6 @@ void main_program() {
         // Close client Socket
         client.closeConnection();
     }
-    main.join();
 }
 
 /*
@@ -231,20 +229,20 @@ void mainLoop(bool& connectionPending, bool& listening, string& command, bool& m
             //Potentially move this to main
             checkConnectionsFromClient(threads, server, chatServer);
         }
-        
-        // Reset menu option
-        if ( command != "3" ) {
-            menuSelected = false;
-            command.erase();
-            // Close server sockets
-            //server.shutdownServer();
-            //chatServer.shutdownServer();
-           // main_program();
-        }
 
         // Close server sockets
         server.shutdownServer();
         chatServer.shutdownServer();
+
+        // Reset menu option
+        if ( command != "3" ) {
+            menuSelected = false;
+            command.erase();
+            //main_program();
+            return;
+
+        }
+
     }
 }
 

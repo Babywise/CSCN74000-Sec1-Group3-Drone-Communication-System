@@ -198,6 +198,7 @@ void listener(ChatWindow& window, Client& chatClient, string& message) {
 		if ( message == EXIT_COMMAND && window.isConnected()) {
 			sendChatMessage(chatClient, "[" + chatClient.getDroneID() + "] " + "Drone has disconnected");
 		}
+		chatClient.setTimeout(5000);
 	}
 	Sleep(1000);
 }

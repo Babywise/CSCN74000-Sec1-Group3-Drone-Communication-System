@@ -199,6 +199,7 @@ void listener(ChatWindow& window, Server& chatClient, SOCKET& clientSocket, stri
 		if ( message == EXIT_COMMAND && window.isConnected() ) {
 			sendChatMessage(chatClient, clientSocket, "[" + chatClient.getTowerID() + "] " + "Server has disconnected");
 		}
+		chatClient.setTimeout(clientSocket, 5000);
 	}
 	Sleep(1000);
 }
