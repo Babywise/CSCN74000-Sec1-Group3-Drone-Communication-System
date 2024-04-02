@@ -73,9 +73,21 @@ std::string Client::getCurrMessage()
 {
     return currMessage;
 }
+void Client::setCurrDate(std::string date)
+{
+    	this->currDate = date;
+}   
 
+std::string Client::getCurrDate()
+{
+	return this->currDate;
+}   
 void Client::setCurrMessage(std::string message)
 {
+    time_t now = time(0);  
+    tm* ltm = localtime(&now);
+    std::string timeString = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday) + " " + to_string(ltm->tm_hour) + ":" + to_string(ltm->tm_min) + ":" + to_string(ltm->tm_sec);
+    this->currDate= timeString;
 	this->currMessage = message;
 }
 

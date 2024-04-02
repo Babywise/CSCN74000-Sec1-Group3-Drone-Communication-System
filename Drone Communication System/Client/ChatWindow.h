@@ -24,7 +24,8 @@ bool sendChatMessage(Client& client, std::string message) {
 	char messageToSend[MAX_MESSAGE_SIZE] = {};
 	strcpy_s(messageToSend, message.c_str());
 	msgPacket.setMessage(messageToSend);
-
+	msgPacket.setCurrDate();
+	client.setCurrDate(msgPacket.getCurrDate());
 	PacketManager pM(msgPacket.serialize());
 	Packet* packet = pM.getPacket();
 
@@ -119,7 +120,7 @@ public:
 	void addChat(char* date, std::string message) {
 		lock.lock();
 		ChatWindowCommunication newChat;
-		newChat.setMessage(message);
+		newChat.setMessage(date + message);
 		chats.push_back(newChat);
 		hasUpdate = true;
 		lock.unlock();
@@ -191,7 +192,7 @@ void listener(ChatWindow& window, Client& chatClient, string& message) {
 		chatClient.setTimeout(1);
 		// wait for message
 		if ( recieveChatMessage(chatClient) ) {
-			window.addChat((char*)DEFAULT_DATE, chatClient.getCurrMessage());
+			window.addChat((char*)chatClient.getCurrDate().c_str(), chatClient.getCurrMessage());
 		}
 		chatClient.clearCurrMessage();
 		// if message is exit command and server is disconnected
@@ -227,7 +228,7 @@ int runChatWindow(Client& chatClient) {
 				//send message to server
 				std::string add_to_chat = "[" + chatClient.getDroneID() + "] " + CHAT.message;
 				sendChatMessage(chatClient, add_to_chat);
-				CHAT.addChat((char*)DEFAULT_DATE, add_to_chat);
+				CHAT.addChat((char*)chatClient.getCurrDate().c_str(), add_to_chat);
 			}
 			message = "";
 		} else if ( user_character == BACKSPACE) {
@@ -238,7 +239,7 @@ int runChatWindow(Client& chatClient) {
 		}
 		CHAT.message = message;
 	}
-	CHAT.addChat((char*)DEFAULT_DATE, (char*)"Goodbye!");
+	CHAT.addChat((char*)chatClient.getCurrDate().c_str(), (char*)"Goodbye!");
 	t1.join();
 	t2.join();
 	return 0;

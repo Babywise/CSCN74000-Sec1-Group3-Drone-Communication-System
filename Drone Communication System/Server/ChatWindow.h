@@ -120,7 +120,7 @@ public:
 	void addChat(char* date, std::string message) {
 		lock.lock();
 		ChatWindowCommunication newChat;
-		newChat.setMessage(message);
+		newChat.setMessage(date + message);
 		chats.push_back(newChat);
 		hasUpdate = true;
 		lock.unlock();
@@ -192,7 +192,7 @@ void listener(ChatWindow& window, Server& chatClient, SOCKET& clientSocket, stri
 		chatClient.setTimeout(clientSocket, 1);
 		// wait for message
 		if ( recieveChatMessage(chatClient, clientSocket) ) {
-			window.addChat((char*)DEFAULT_DATE, chatClient.getCurrMessage());
+			window.addChat((char*)chatClient.getCurrDate().c_str(), chatClient.getCurrMessage());
 		}
 		chatClient.clearCurrMessage();
 		// if message is exit command and drone is disconnected
@@ -228,7 +228,7 @@ int runChatWindow(Server& chatClient, SOCKET& clientSocket) {
 				//send message to client
 				std::string add_to_chat = "[" + chatClient.getTowerID() + "] " + CHAT.message;
 				sendChatMessage(chatClient, clientSocket, add_to_chat);
-				CHAT.addChat((char*)DEFAULT_DATE, add_to_chat);
+				CHAT.addChat((char*)chatClient.getCurrDate().c_str(), add_to_chat);
 			}
 			message = "";
 		} else if ( user_character == BACKSPACE ) {
@@ -239,7 +239,7 @@ int runChatWindow(Server& chatClient, SOCKET& clientSocket) {
 		}
 		CHAT.message = message;
 	}
-	CHAT.addChat((char*)DEFAULT_DATE, (char*)"Goodbye!");
+	CHAT.addChat((char*)chatClient.getCurrDate().c_str(), (char*)"Goodbye!");
 	t1.join();
 	t2.join();
 	return 0;

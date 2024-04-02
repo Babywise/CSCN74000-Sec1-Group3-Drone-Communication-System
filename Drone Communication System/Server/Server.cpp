@@ -129,6 +129,11 @@ int Server::sendPacket(Packet& packet, SOCKET& clientSocket)
     return sendResult;
 }
 
+//Get the current date
+std::string Server::getCurrDate()
+{
+	return this->currDate;
+}
 //Get the current message
 std::string Server::getCurrMessage()
 {

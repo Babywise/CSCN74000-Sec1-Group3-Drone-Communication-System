@@ -16,6 +16,7 @@ class Server {
     sockaddr_in serverAddress = {};
     vector<SOCKET> clientSockets = {};
     std::string currMessage = {};
+    std::string currDate = {};
 
 public:
     Server(std::string towerID, int port);
@@ -39,6 +40,7 @@ public:
     int sendPacket(Packet& packet, SOCKET& clientSocket);
 
     // Message
+    std::string getCurrDate();
     std::string getCurrMessage();
     void setCurrMessage(std::string message);
     void clearCurrMessage();

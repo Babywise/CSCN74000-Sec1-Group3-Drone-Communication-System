@@ -14,6 +14,7 @@ class Client {
     std::string droneID = {};
     std::string towerID = {};
     std::string currMessage = {};
+    std::string currDate = {};
     WSADATA wsaData = {};
     SOCKET clientSocket = {};
     sockaddr_in serverAddress = {};
@@ -35,6 +36,7 @@ public:
     std::string getTowerID();
 
     // Message
+    void setCurrDate(std::string date);
     std::string getCurrMessage();
     void setCurrMessage(std::string message);
     void clearCurrMessage();

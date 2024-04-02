@@ -1,6 +1,6 @@
 #include "ServerRequester.h"
 
-Client::Client(std::string droneID) : droneID(droneID), towerID("replace_me Twr ID"), currMessage(), wsaData(), clientSocket(), serverAddress()
+Client::Client(std::string droneID) : droneID(droneID), towerID("replace_me Twr ID"), currMessage(),currDate(), wsaData(), clientSocket(), serverAddress()
 {
     // Initialize Winsock
     if ( WSAStartup(MAKEWORD(2, 2), &wsaData) != 0 ) {
@@ -76,7 +76,11 @@ std::string Client::getCurrMessage()
 
 void Client::setCurrMessage(std::string message)
 {
+    time_t now = time(0);
+    tm* ltm = localtime(&now);
+    string d = to_string(1900 + ltm->tm_year) + "-" + to_string(1 + ltm->tm_mon) + "-" + to_string(ltm->tm_mday) + " " + to_string(ltm->tm_hour) + ":" + to_string(ltm->tm_min) + ":" + to_string(ltm->tm_sec);
     this->currMessage = message;
+    this->currDate = d;
 }
 
 void Client::clearCurrMessage()
@@ -90,4 +94,9 @@ bool Client::setTimeout(int duration)
         return false;
     }
     return true;
+}
+
+void Client::setCurrDate(std::string date)
+{
+	this->currDate = date;
 }
