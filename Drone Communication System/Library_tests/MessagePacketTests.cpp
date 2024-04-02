@@ -37,13 +37,13 @@ namespace Librarytests
 		{
 			MessagePacket msgpckt = MessagePacket();
 			msgpckt.setMessage("welcome home");
-			Assert::AreEqual((string)"welcome home", msgpckt.getMessage());
+			Assert::AreEqual((std::string)"welcome home", msgpckt.getMessage());
 		}
 		TEST_METHOD(Write_Message_semicolan)
 		{
 			MessagePacket msgpckt = MessagePacket();
 			msgpckt.setMessage("welcome home;");
-			Assert::AreEqual((string)"welcome home;", msgpckt.getMessage());
+			Assert::AreEqual((std::string)"welcome home;", msgpckt.getMessage());
 		}
 		TEST_METHOD(init_ack_0)
 		{

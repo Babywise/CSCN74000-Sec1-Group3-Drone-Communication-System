@@ -24,7 +24,7 @@ namespace Librarytests
 			msgpckt.setMessage("welcome home");
 			PacketManager pcktMngr(msgpckt.serialize());
 			MessagePacket msgPacketCompare = MessagePacket(pcktMngr.getPacket()->serialize());
-			Assert::AreEqual((string)"welcome home", msgPacketCompare.getMessage());
+			Assert::AreEqual((std::string)"welcome home", msgPacketCompare.getMessage());
 		}
 	};
 }

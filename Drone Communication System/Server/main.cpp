@@ -123,81 +123,82 @@ void main_program() {
 
         while ( listening == false ) {}   // wait to start listening
 
-    while (listening == false) {}   // wait to start listening
+        while ( command != "3" ) {
 
+            Client client(TOWER_ID);
 
-    while ( command != "3" ) {
+            // Main Menu
+            while ( command != "1" && command != "2" && command != "3" ) { // whitelist options
 
-        Client client(TOWER_ID);
+                serverStartMenu(TOWER_ID);
 
-        // Main Menu
-        while (command != "1" && command != "2" && command != "3") { // whitelist options
+                std::cin >> command;
+                int choice = std::stoi(command);
+                menuSelected == true;
 
-            serverStartMenu(TOWER_ID);
+                // Connect to the Client
+                if ( choice == 1 ) {
+                    std::cout << "Waiting...\n";
+                    if ( !client.connectToServer(SERVER_IP, LISTEN_PORT) ) {
+                        std::cout << "Server Connection Failed.\n";
+                        break;
+                    }
 
-            std::cin >> command;
-            int choice = std::stoi(command);
-            menuSelected == true;
+                    char RxBuffer[maxPacketSize] = {};
+                    if ( recv(client.getClientSocket(), RxBuffer, maxPacketSize, 0) <= 0 ) {
+                        std::cout << "Response Lost.\n";
+                        connectionFailed = true;
+                        connectionPending = false;
+                        main.join();
+                        break;
+                    }
 
-            // Connect to the Client
-            if (choice == 1) {
-                std::cout << "Waiting...\n";
-                if (!client.connectToServer(SERVER_IP, LISTEN_PORT)) {
-                    std::cout << "Server Connection Failed.\n";
+                    //Recv Msg Packet
+                    PacketManager pM(RxBuffer);
+                    if ( pM.getPacketType() == PacketType::packetMessage ) {
+                        MessagePacket* msgPacket = new MessagePacket(RxBuffer);
+                        client.setCurrMessage(msgPacket->getMessage());
+                        std::cout << client.getCurrMessage() << "\n";
+                    }
+                    Sleep(5000);
+                    connectionPending = false;
+                    if ( main.joinable() ) {
+                        main.join();
+                    } else {
+                        main.~thread();
+                    }
+
+                }
+                // Check Connections
+                else if ( choice == 2 ) {
+                    Sleep(6000);
+                    if ( connectionPending == true ) {
+                        connectionPending = false;
+                        main.join();
+                    }
+
+                    // Exit
+                } else if ( choice == 3 ) {
+                    std::cout << "Thank you for using Drone Communication System!\n";
+                    Sleep(2000);
                     break;
                 }
-
-                char RxBuffer[maxPacketSize] = {};
-                if (recv(client.getClientSocket(), RxBuffer, maxPacketSize, 0) <= 0) {
-                    std::cout << "Response Lost.\n";
-                    connectionFailed = true;
-                    connectionPending = false;
-                    main.join();
-                    break;
+                // Invalid Option
+                else {
+                    std::cout << "Invalid Option.\n";
                 }
+            }
 
-                //Recv Msg Packet
-                PacketManager pM(RxBuffer);
-                if (pM.getPacketType() == PacketType::packetMessage) {
-                    MessagePacket* msgPacket = new MessagePacket(RxBuffer);
-                    client.setCurrMessage(msgPacket->getMessage());
-                    std::cout << client.getCurrMessage() << "\n";
-                }
-                Sleep(5000);
-                connectionPending = false;
-                main.join();
+            // Reset menu option
+            if ( command != "3" ) {
+                command.erase();
+            }
 
-            }
-            // Check Connections
-            else if (choice == 2) {
-                Sleep(6000);
-                if (connectionPending == true) {
-                    connectionPending = false;
-                    main.join();
-                }
-            
-            // Exit
-            } else if ( choice == 3 ) {
-                std::cout << "Thank you for using Drone Communication System!\n";
-                Sleep(2000);
-                break;
-            }
-            // Invalid Option
-            else {
-                std::cout << "Invalid Option.\n";
-            }
+            // Close client Socket
+            client.closeConnection();
         }
-
-        // Reset menu option
-        if ( command != "3" ) {
-            command.erase();
-        }
-
-        // Close client Socket
-        client.closeConnection();
     }
 }
-
 /*
 * This function runs a listening socket to listen for connection requests and alert the user when a connection is incoming
 * When the user accepts the connection this function proceeds and handles the connection
@@ -316,7 +317,7 @@ bool receiveImage(SOCKET& clientChatSocket) {
         }
 
         //save image to file
-        std::string filename = IMAGE_PATH + string("received_image_") + std::to_string(time(nullptr)) + extension;
+        std::string filename = IMAGE_PATH + std::string("received_image_") + std::to_string(time(nullptr)) + extension;
         std::ofstream outFile(filename, std::ios::binary);
         if (!outFile) {
             std::cerr << "Failed to create file\n";
