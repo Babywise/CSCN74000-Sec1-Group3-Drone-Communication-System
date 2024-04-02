@@ -290,11 +290,11 @@ void checkConnectionsFromServer(Client& client, Client& chatClient, Server& serv
         int choice = std::stoi(command);
         // Regret Connection
         if ( choice == 2 ) {
-            if ( !server.closeLastConnection() ) {
+            /*if ( !server.closeLastConnection() ) {
                 std::cout << "Closing Server Connection Failed.\n";
                 break;
-            }
-            continue;
+            }*/
+            return;
         // Accept Connection
         } else if ( choice == 3 ) {
             return;
