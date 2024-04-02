@@ -137,7 +137,7 @@ void main_program() {
             }
             // Check Connections
             else if (choice == 2) {
-                Sleep(1000);
+                Sleep(6000);
                 if (connectionPending == true) {
                     connectionPending = false;
                     main.join();
@@ -392,8 +392,9 @@ void checkConnectionsFromClient(std::vector<std::thread>& threads, Server& serve
             // Send to client to let them know they were rejected
             return;
             // Accept Connection and bind to a new thread
-        }
-        else if (choice == 1) { // Handle connection with clientService.
+        } else if ( choice == 3 ) {
+            return;
+        } else if (choice == 1) { // Handle connection with clientService.
             threads.push_back(std::thread([&]() { clientService(server, chatServer, chatServer.getClientSockets().back()); }));
             threads.back().join();
             std::cout << "Thread created\n";
